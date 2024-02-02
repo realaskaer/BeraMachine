@@ -84,3 +84,5 @@ class RequestClient(ABC):
             except ContentTypeError:
                 raise SoftwareException(
                     f"Bad request to {self.__class__.__name__} API{module_name}. Response {await response.text()}")
+            except Exception as error:
+                raise SoftwareException(error)
