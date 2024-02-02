@@ -146,9 +146,8 @@ class Runner(Logger):
             account_number = ACCOUNT_NAMES.index(account_name) + 1
             num_emails = len(EMAIL_ADDRESSES)
             return EMAIL_ADDRESSES[account_number % num_emails], EMAIL_PASSWORDS[account_number % num_emails]
-        except Exception as error:
-            self.logger_msg(account_name, None, f"Bad data in proxy, but you want proxy! Error: {error}", 'error')
-            raise SoftwareException("Proxy error")
+        except:
+            return None, None
 
     async def run_account_modules(
             self, account_name: str, private_key: str, proxy: str | None, index: int, parallel_mode: bool = False
