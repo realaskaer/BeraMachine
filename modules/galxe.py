@@ -233,9 +233,7 @@ class Galxe(Logger, RequestClient):
         }
 
         response = await self.make_request(method="POST", url=self.base_url, json=payload, module_name='BasicUserInfo')
-        self.user_info = response['data']['addressInfo']
-
-        return True
+        return response['data']['addressInfo']
 
     async def send_email(self):
         payload = {
@@ -447,8 +445,8 @@ class Galxe(Logger, RequestClient):
         else:
             self.logger_msg(*self.client.acc_info, msg=f"Already registered on Galxe", type_msg='success')
 
-        await self.get_user_info()
-        if not self.user_info['hasEmail']:
+        user_info = await self.get_user_info()
+        if not user_info['hasEmail']:
             self.logger_msg(*self.client.acc_info, msg=f"Email is not linked to the Galxe account. Start linking...")
             await asyncio.sleep(5)
             await self.send_email()
