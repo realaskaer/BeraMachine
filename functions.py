@@ -27,6 +27,11 @@ async def swap_btc_bex(account_number, private_key, proxy, *_, **kwargs):
     return await worker.swap_btc_bex(**kwargs)
 
 
+async def swap_honey_bex(account_number, private_key, proxy, *_, **kwargs):
+    worker = Custom(get_client(account_number, private_key, proxy))
+    return await worker.swap_honey_bex(**kwargs)
+
+
 async def swap_stgusdc_bex(account_number, private_key, proxy, *_, **kwargs):
     worker = Custom(get_client(account_number, private_key, proxy))
     return await worker.swap_stgusdc_bex(**kwargs)
@@ -40,6 +45,11 @@ async def add_liqiudity_bex(account_number, private_key, proxy, *_, **kwargs):
 async def mint_honey(account_number, private_key, proxy, *_, **kwargs):
     worker = BeraChain(get_client(account_number, private_key, proxy))
     return await worker.swap_honey(**kwargs)
+
+
+async def mint_booga_ticket(account_number, private_key, proxy, *_, **kwargs):
+    worker = BeraChain(get_client(account_number, private_key, proxy))
+    return await worker.mint_booga_ticket(**kwargs)
 
 
 async def claim_galxe_points(account_number, private_key, proxy, email_address, email_password, **kwargs):

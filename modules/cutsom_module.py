@@ -42,4 +42,21 @@ class Custom(Logger, RequestClient):
 
         return result
 
+    @helper
+    async def swap_honey_bex(self):
+        from functions import swap_bex
+
+        from_token_name = 'BERA'
+        to_token_name = 'HONEY'
+        amount = round(random.uniform(0.01, 0.02), 4)
+        amount_in_wei = int(amount * 10 ** 18)
+
+        data = from_token_name, to_token_name, amount, amount_in_wei
+
+        result = await swap_bex(self.client.account_name, self.client.private_key,
+                                self.client.proxy_init, swapdata=data)
+
+        return result
+
+
 

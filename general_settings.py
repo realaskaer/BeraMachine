@@ -54,9 +54,11 @@ TG_ID = ""  # https://t.me/getmyid_bot
 
     mint_berachain_tokens  # минт $BERA на BeraChain Faucet (https://artio.faucet.berachain.com/)
     swap_btc_bex           # свап на BEX ($BERA -> $BTC)
+    swap_honey_bex         # свап на BEX ($BERA -> $HONEY)
     swap_stgusdc_bex       # свап на BEX ($BERA -> $STGUSDC)
     add_liqiudity_bex      # добавление ликвидности на BEX
     mint_honey             # минт $HONEY за $STGUSDC
+    mint_booga_ticket      # минт OOGA BOOGA Ticket за 4.2 $HONEY
     claim_galxe_points     # выполнение дейлика на Galxe (5 поинтов за визит Faucet)
 
     Выберите необходимые модули для взаимодействия

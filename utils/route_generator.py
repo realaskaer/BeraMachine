@@ -11,9 +11,11 @@ AVAILABLE_MODULES_INFO = {
     # module_name                       : (module name, priority, tg info, can be help module, supported network)
     mint_berachain_tokens               : (mint_berachain_tokens, 1, 'Mint $BERA on Faucet', 0, [0]),
     swap_btc_bex                        : (swap_btc_bex, 2, '$BERA -> $BTC Bex Swap', 0, [0]),
+    swap_honey_bex                      : (swap_honey_bex, 2, '$BERA -> $HONEY Bex Swap', 0, [0]),
     swap_stgusdc_bex                    : (swap_stgusdc_bex, 2, '$BERA -> $STGUSDC Bex Swap', 0, [0]),
     add_liqiudity_bex                   : (add_liqiudity_bex, 3, 'Add liquidity on Bex', 0, [0]),
     mint_honey                          : (mint_honey, 3, 'Mint $HONEY', 0, [0]),
+    mint_booga_ticket                   : (mint_booga_ticket, 3, 'Mint OOGA BOOGA Ticket', 0, [0]),
     claim_galxe_points                  : (claim_galxe_points, 3, 'Claim Galxe Daily Points', 0, [0]),
 }
 

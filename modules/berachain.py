@@ -2,7 +2,8 @@ import random
 
 from modules import RequestClient, Logger
 from utils.tools import helper
-from config import BEX_ABI, TOKENS_PER_CHAIN, BEX_CONTRACTS, ZERO_ADDRESS, HONEY_CONTRACTS, HONEY_ABI
+from config import BEX_ABI, TOKENS_PER_CHAIN, BEX_CONTRACTS, ZERO_ADDRESS, HONEY_CONTRACTS, HONEY_ABI, HONEYJAR_ABI, \
+    HONEYJAR_CONTRACTS
 
 
 class BeraChain(Logger, RequestClient):
@@ -15,6 +16,7 @@ class BeraChain(Logger, RequestClient):
         self.bex_router_contract = self.client.get_contract(BEX_CONTRACTS['router'], BEX_ABI['router'])
         self.honey_router_contract = self.client.get_contract(HONEY_CONTRACTS['router'], HONEY_ABI['router'])
         self.pool_contract = self.client.get_contract(BEX_CONTRACTS['bera_usdc_pool'], BEX_ABI['router'])
+        self.honeyjar_contract = self.client.get_contract(HONEYJAR_CONTRACTS['router'], HONEYJAR_ABI['router'])
 
     async def get_min_amount_out(self, from_token_address: str, to_token_address: str, amount_in_wei: int):
         min_amount_out = await self.bex_router_contract.functions.querySwap(
@@ -108,8 +110,7 @@ class BeraChain(Logger, RequestClient):
 
         self.logger_msg(*self.client.acc_info, msg=f'Swap on Honey: {amount} STGUSDC -> HONEY')
 
-        token_data = TOKENS_PER_CHAIN[self.network]
-        from_token_address = token_data['STGUSDC']
+        from_token_address = TOKENS_PER_CHAIN[self.network]['STGUSDC']
 
         await self.client.check_for_approved(from_token_address, HONEY_CONTRACTS['router'], amount_in_wei)
 
@@ -118,6 +119,21 @@ class BeraChain(Logger, RequestClient):
             from_token_address,
             amount_in_wei
         ).build_transaction(await self.client.prepare_transaction())
+
+        return await self.client.send_transaction(transaction)
+
+    @helper
+    async def mint_booga_ticket(self):
+
+        self.logger_msg(*self.client.acc_info, msg=f'Mint NFT on 0xHONEYJAR. Price : 4.2 HONEY')
+
+        from_token_address = TOKENS_PER_CHAIN[self.network]['HONEY']
+
+        await self.client.check_for_approved(from_token_address, HONEYJAR_CONTRACTS['router'], int(4.2 * 10 ** 18))
+
+        transaction = await self.honeyjar_contract.functions.buy().build_transaction(
+            await self.client.prepare_transaction()
+        )
 
         return await self.client.send_transaction(transaction)
     
