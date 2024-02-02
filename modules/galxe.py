@@ -4,6 +4,7 @@ import string
 import asyncio
 import aioimaplib
 
+from general_settings import EMAIL_DOMAIN
 from utils.tools import helper
 from datetime import datetime, timedelta
 from modules import Logger, RequestClient
@@ -407,7 +408,7 @@ class Galxe(Logger, RequestClient):
         self.logger_msg(*self.client.acc_info, msg=f"Started searching for messages from Galxe...")
 
         while True:
-            rambler_client = aioimaplib.IMAP4_SSL('imap.rambler.ru')
+            rambler_client = aioimaplib.IMAP4_SSL(f'imap.{EMAIL_DOMAIN}')
 
             await rambler_client.wait_hello_from_server()
             await rambler_client.login(self.client.email_address, self.client.email_password)
