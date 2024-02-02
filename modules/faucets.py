@@ -86,3 +86,5 @@ class Faucet(Logger, RequestClient):
         await self.make_request(method="POST", url=url, params=params, data=json.dumps(params), headers=headers)
 
         self.logger_msg(*self.client.acc_info, msg=f'$BERA was successfully claimed on faucet', type_msg='success')
+
+        return True

@@ -480,3 +480,5 @@ class Galxe(Logger, RequestClient):
         self.logger_msg(*self.client.acc_info, msg=f"Task is ready to claim points", type_msg='success')
 
         await self.claim_points()
+
+        return True
