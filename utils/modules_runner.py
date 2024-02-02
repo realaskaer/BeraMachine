@@ -13,7 +13,7 @@ from utils.route_generator import AVAILABLE_MODULES_INFO, get_func_by_name
 from config import ACCOUNT_NAMES, PRIVATE_KEYS, PROXIES, CHAIN_NAME, EMAIL_ADDRESSES, EMAIL_PASSWORDS
 from general_settings import (SLEEP_MODE, SLEEP_TIME, SOFTWARE_MODE, TG_ID, TG_TOKEN, MOBILE_PROXY,
                               MOBILE_PROXY_URL_CHANGER, WALLETS_TO_WORK, TELEGRAM_NOTIFICATIONS,
-                              SAVE_PROGRESS, ACCOUNTS_IN_STREAM, SLEEP_TIME_STREAM, SHUFFLE_WALLETS)
+                              SAVE_PROGRESS, ACCOUNTS_IN_STREAM, SLEEP_TIME_STREAM, SHUFFLE_WALLETS, BREAK_ROUTE)
 
 
 class Runner(Logger):
@@ -204,6 +204,11 @@ class Runner(Logger):
                 else:
                     self.collect_bad_wallets(account_name, module_name)
                     result = False
+                    if BREAK_ROUTE:
+                        message_list.extend([f'❌   {module_name_tg}\n', f'💀   The route was stopped!\n'])
+                        account_progress = (False, module_name, account_name)
+                        result_list.append(account_progress)
+                        break
 
                 current_step += 1
                 message_list.append(f'{"✅" if result else "❌"}   {module_name_tg}\n')
