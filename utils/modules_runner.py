@@ -126,7 +126,7 @@ class Runner(Logger):
                 info = f'Proxy {proxy[proxy.find("@"):]} successfully connected to BeraChain RPC'
                 self.logger_msg(account_name, None, info, 'success')
                 return True
-            self.logger_msg(account_name, None, f"Proxy: {proxy} can`t connect to Ethereum RPC", 'error')
+            self.logger_msg(account_name, None, f"Proxy: {proxy} can`t connect to BeraChain RPC", 'error')
             return False
         except Exception as error:
             self.logger_msg(account_name, None, f"Bad proxy: {proxy} | Error: {error}", 'error')
@@ -141,7 +141,8 @@ class Runner(Logger):
             self.logger_msg(account_name, None, f"Bad data in proxy, but you want proxy! Error: {error}", 'error')
             raise SoftwareException("Proxy error")
 
-    def get_email_for_account(self, account_name):
+    @staticmethod
+    def get_email_for_account(account_name):
         try:
             account_number = ACCOUNT_NAMES.index(account_name) + 1
             num_emails = len(EMAIL_ADDRESSES)

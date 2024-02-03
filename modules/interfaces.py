@@ -46,7 +46,7 @@ class Logger(ABC):
 
     def logger_msg(self, account_name, address, msg, type_msg: str = 'info'):
         if account_name is None and address is None:
-            info = f'[Attack machine] | {CHAIN_NAME[1]} | {self.__class__.__name__} |'
+            info = f'[BeraMachine] | {CHAIN_NAME[1]} | {self.__class__.__name__} |'
         elif account_name is not None and address is None:
             info = f'[{account_name}] | {CHAIN_NAME[1]} | {self.__class__.__name__} |'
         else:
