@@ -27,6 +27,10 @@ class SoftwareException(Exception):
     pass
 
 
+class SoftwareExceptionWithoutRetry(Exception):
+    pass
+
+
 class WrongGalxeCode(Exception):
     pass
 
@@ -83,14 +87,15 @@ class RequestClient(ABC):
 
                         if not errors:
                             return data
+                        elif 'have been marked as inactive' in f"{errors}":
+                            raise SoftwareExceptionWithoutRetry(
+                                f"Bad request to {self.__class__.__name__}({module_name}) API: {errors[0]['message']}")
                         else:
                             raise SoftwareException(
                                 f"Bad request to {self.__class__.__name__}({module_name}) API: {errors[0]['message']}")
 
-                    raise SoftwareException(f"Bad request to {self.__class__.__name__}({module_name}) API: {await response.text()}")
-                except ContentTypeError:
                     raise SoftwareException(
-                        f"Bad request to {self.__class__.__name__} API{module_name}. Response {await response.text()}")
+                        f"Bad request to {self.__class__.__name__}({module_name}) API: {await response.text()}")
                 except aiohttp.client_exceptions.ServerDisconnectedError as error:
                     total_time += 15
                     await asyncio.sleep(15)

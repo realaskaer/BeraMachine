@@ -109,6 +109,7 @@ def get_accounts_data():
         cprint(f'\nError in <get_accounts_data> function! Error: {error}\n', color='light_red')
         sys.exit()
 
+
 def clean_progress_file():
     with open('./data/services/wallets_progress.json', 'w') as file:
         file.truncate(0)
@@ -126,7 +127,10 @@ def check_progress_file():
 def helper(func):
     @functools.wraps(func)
     async def wrapper(self, *args, **kwargs):
-        from modules.interfaces import PriceImpactException, BlockchainException, SoftwareException
+        from modules.interfaces import (
+            PriceImpactException,BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry
+        )
+
         attempts = 0
         error = None
         stop_flag = False
@@ -134,7 +138,7 @@ def helper(func):
             while attempts <= MAXIMUM_RETRY:
                 try:
                     return await func(self, *args, **kwargs)
-                except (PriceImpactException, BlockchainException, SoftwareException,
+                except (PriceImpactException, BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
                         asyncio.exceptions.TimeoutError, TimeExhausted, ValueError) as err:
                     error = err
                     attempts += 1
@@ -148,9 +152,15 @@ def helper(func):
                     if attempts:
                         if isinstance(error, asyncio.exceptions.TimeoutError):
                             error = 'Connection to RPC is not stable'
+                            await self.client.change_rpc()
 
-                        if isinstance(error, BlockchainException):
-                            if 'insufficient funds' in str(error):
+                        elif isinstance(error, SoftwareExceptionWithoutRetry):
+                            stop_flag = True
+                            msg = f'{error}'
+
+                        elif isinstance(error, BlockchainException):
+
+                            if any([i in str(error) for i in ['insufficient funds']]):
                                 stop_flag = True
                                 network_name = self.client.network.name
                                 msg = f'Insufficient funds on {network_name}, software will stop this action\n'
@@ -173,5 +183,4 @@ def helper(func):
         finally:
             await self.client.session.close()
         return False
-
     return wrapper
