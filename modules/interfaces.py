@@ -1,3 +1,6 @@
+import asyncio
+
+import aiohttp.client_exceptions
 from aiohttp import ContentTypeError
 from loguru import logger
 from sys import stderr
@@ -65,24 +68,34 @@ class RequestClient(ABC):
         headers = (headers or {}) | {'User-Agent': get_user_agent()}
         async with self.client.session.request(method=method, url=url, headers=headers, data=data,
                                                params=params, json=json) as response:
-            try:
-                data = await response.json()
 
-                if response.status == 200:
-                    if isinstance(data, dict):
-                        errors = data.get('errors')
-                    elif isinstance(data, list) and isinstance(data[0], dict):
-                        errors = data[0].get('errors')
+            total_time = 0
+            timeout = 360
+            while True:
+                try:
+                    data = await response.json()
 
-                    if not errors:
-                        return data
-                    else:
-                        raise SoftwareException(
-                            f"Bad request to {self.__class__.__name__}({module_name}) API: {errors[0]['message']}")
+                    if response.status == 200:
+                        if isinstance(data, dict):
+                            errors = data.get('errors')
+                        elif isinstance(data, list) and isinstance(data[0], dict):
+                            errors = data[0].get('errors')
 
-                raise SoftwareException(f"Bad request to {self.__class__.__name__}({module_name}) API: {await response.text()}")
-            except ContentTypeError:
-                raise SoftwareException(
-                    f"Bad request to {self.__class__.__name__} API{module_name}. Response {await response.text()}")
-            except Exception as error:
-                raise SoftwareException(error)
+                        if not errors:
+                            return data
+                        else:
+                            raise SoftwareException(
+                                f"Bad request to {self.__class__.__name__}({module_name}) API: {errors[0]['message']}")
+
+                    raise SoftwareException(f"Bad request to {self.__class__.__name__}({module_name}) API: {await response.text()}")
+                except ContentTypeError:
+                    raise SoftwareException(
+                        f"Bad request to {self.__class__.__name__} API{module_name}. Response {await response.text()}")
+                except aiohttp.client_exceptions.ServerDisconnectedError as error:
+                    total_time += 15
+                    await asyncio.sleep(15)
+                    if total_time > timeout:
+                        raise SoftwareException(error)
+                    continue
+                except Exception as error:
+                    raise SoftwareException(error)

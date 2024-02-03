@@ -407,6 +407,8 @@ class Galxe(Logger, RequestClient):
 
         self.logger_msg(*self.client.acc_info, msg=f"Started searching for messages from Galxe...")
 
+        total_time = 0
+        timeout = 600
         while True:
             rambler_client = aioimaplib.IMAP4_SSL(f'imap.{EMAIL_DOMAIN}')
 
@@ -425,12 +427,18 @@ class Galxe(Logger, RequestClient):
                 try:
                     return soup.find('h1').text
                 except:
+                    total_time += 30
                     await asyncio.sleep(30)
+                    if total_time > timeout:
+                        break
                     continue
             except Exception as error:
                 self.logger_msg(
                     *self.client.acc_info, msg=f"Error in <get_email_code> function: {error}", type_msg='warning')
+                total_time += 15
                 await asyncio.sleep(15)
+                if total_time > timeout:
+                    break
                 continue
 
     @helper
