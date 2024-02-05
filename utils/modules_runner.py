@@ -275,7 +275,7 @@ class Runner(Logger):
             await self.run_account_modules(account_name, private_key, self.get_proxy_for_account(account_name), index=1)
 
             if len(accounts_data) > 1:
-                await self.smart_sleep(account_name, account_number=1)
+                await self.smart_sleep(account_name, account_number=1, accounts_delay=True)
 
             if MOBILE_PROXY:
                 await self.change_ip_proxy()
