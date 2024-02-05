@@ -102,5 +102,7 @@ class RequestClient(ABC):
                     if total_time > timeout:
                         raise SoftwareException(error)
                     continue
+                except SoftwareExceptionWithoutRetry as error:
+                    raise SoftwareExceptionWithoutRetry(error)
                 except Exception as error:
                     raise SoftwareException(error)

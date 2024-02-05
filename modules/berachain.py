@@ -1,6 +1,7 @@
 import random
 
 from modules import RequestClient, Logger
+from modules.interfaces import SoftwareException
 from utils.tools import helper
 from config import BEX_ABI, TOKENS_PER_CHAIN, BEX_CONTRACTS, ZERO_ADDRESS, HONEY_CONTRACTS, HONEY_ABI, HONEYJAR_ABI, \
     HONEYJAR_CONTRACTS
@@ -42,10 +43,7 @@ class BeraChain(Logger, RequestClient):
     @helper
     async def swap_bex(self, swapdata:dict = None):
 
-        if swapdata:
-            from_token_name, to_token_name, amount, amount_in_wei = swapdata
-        else:
-            from_token_name, to_token_name, amount, amount_in_wei = await self.client.get_auto_amount(class_name='BEX')
+        from_token_name, to_token_name, amount, amount_in_wei = swapdata
 
         self.logger_msg(*self.client.acc_info, msg=f'Swap on BEX: {amount} {from_token_name} -> {to_token_name}')
 
@@ -58,32 +56,38 @@ class BeraChain(Logger, RequestClient):
         deadline = 99999999
         swap_data = []
 
-        if from_token_name != self.client.network.token:
-            await self.client.check_for_approved(
-                from_token_address, BEX_CONTRACTS[self.network]['router'], amount_in_wei
+        from_token_balance, _, _ = await self.client.get_token_balance(from_token_name, check_symbol=False)
+
+        if from_token_balance >= amount_in_wei:
+
+            if from_token_name != self.client.network.token:
+                await self.client.check_for_approved(
+                    from_token_address, BEX_CONTRACTS[self.network]['router'], amount_in_wei
+                )
+
+            for index, step in enumerate(swap_steps):
+                swap_data.append([
+                    self.client.w3.to_checksum_address(step["pool"]),
+                    self.client.w3.to_checksum_address(step["assetIn"]) if step['assetIn'] != native_address else ZERO_ADDRESS,
+                    int(step["amountIn"]),
+                    self.client.w3.to_checksum_address(step["assetOut"]),
+                    int(int(step["amountOut"]) * 0.95) if index != 0 else 0,
+                    "0x"
+                ])
+
+            tx_params = await self.client.prepare_transaction(
+                value=amount_in_wei if from_token_name == self.client.network.token else 0
             )
 
-        for index, step in enumerate(swap_steps):
-            swap_data.append([
-                self.client.w3.to_checksum_address(step["pool"]),
-                self.client.w3.to_checksum_address(step["assetIn"]) if step['assetIn'] != native_address else ZERO_ADDRESS,
-                int(step["amountIn"]),
-                self.client.w3.to_checksum_address(step["assetOut"]),
-                int(int(step["amountOut"]) * 0.95) if index != 0 else 0,
-                "0x"
-            ])
+            transaction = await self.bex_router_contract.functions.batchSwap(
+                0,
+                swap_data,
+                deadline
+            ).build_transaction(tx_params)
 
-        tx_params = await self.client.prepare_transaction(
-            value=amount_in_wei if from_token_name == self.client.network.token else 0
-        )
-
-        transaction = await self.bex_router_contract.functions.batchSwap(
-            0,
-            swap_data,
-            deadline
-        ).build_transaction(tx_params)
-
-        return await self.client.send_transaction(transaction)
+            return await self.client.send_transaction(transaction)
+        else:
+            raise SoftwareException('Insufficient balance on account!')
 
     @helper
     async def add_liquidity_bex(self):
@@ -136,4 +140,6 @@ class BeraChain(Logger, RequestClient):
         )
 
         return await self.client.send_transaction(transaction)
+
+
     

@@ -51,6 +51,11 @@ CHAIN_NAME = {
     1: 'BeraChain',
 }
 
+IMAP_CONFIG = {
+    'outlook.com': 'outlook.office365.com',
+    'hotmail.com': 'imap-mail.outlook.com',
+}
+
 ACCOUNT_NAMES, PRIVATE_KEYS, PROXIES, EMAIL_ADDRESSES, EMAIL_PASSWORDS = get_accounts_data()
 
 

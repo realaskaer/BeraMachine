@@ -4,7 +4,7 @@ import string
 import asyncio
 import aioimaplib
 
-from general_settings import EMAIL_DOMAIN
+from config import IMAP_CONFIG
 from utils.tools import helper
 from datetime import datetime, timedelta
 from modules import Logger, RequestClient
@@ -364,7 +364,7 @@ class Galxe(Logger, RequestClient):
             "process_token": captcha_data['process_token'],
             "payload_protocol": "1",
             "pt": "1",
-            "w": '8a60f336d57f7f012e7c46bdda0b3773c5c0988dd0aa5835bdfee46fa969196973c3757cd2bb6d881b10a56f55ff06bf3b986e053e68396ec4d5ce51a0a563e9387a16d988e5ed3795a86bb1bd6ab0f1ed0b5a8f6ff0604709ab12e4e44301bbbf06ca9b71e5eb90086b06593cdcce14d2bcc09c1a17bd9d7458de5f9b6827c0634e5132eaa0c29bc34db289a0deb28246f80837c252fcd9e059f4463beea31e7037f0e86ff9477d62850ef4c248529a6625c378b05ff396499958f957aba3484dbd227098f1639244002b90a661c1eb3007b568ec19fa9fafb796e4e351204900c5a9b552a6cd73caa716c14db150c7eb114709b62a48cf1ac41d79f920355166028e47a0b2dcb444dbcaf2bad42a1fb2e93f439c791d6a9aa19044f80b0530f679f5968ced7c739d60f9a72f0cff80f1d58b05bd6e123c2f4f5a2673069efb5b12646a48f0177856c73e1a0dc2eb344e54053736fc88464b36499a56b540fb5fd3b24645843b24e671cc024484f1e9837d5ca53ce8aa12bfd11d58bddd4777be86a291f7e1bab0897f136f3777c7592c28cc9aa8c6a33a22cb6927a9b7546894a8140fb417054b756961db36fd52199887ae6fc8587b6221e3ed55ab8a62a1be93b41f70f38677f5d402d4c7622f74',
+            "w": '98cd3ac35afa05fac35f007411065dd01f9d1f826b8e1b08fd193c783cf564d85faa4e38b4be2f32d515d23f4f4c7f6a6aa69b9402d559f669d64c2d0f2c6658f54801fe7eede55a6e09fe1a2f09da15d96c8675a38c719d1529bf057295ab6e984cb023afa92039c5c757b6ac91ecacadd8f64da8533316562d0fa88f42b5b9b0e557ab22cd27ef87086ecdbd858b982ea53a3b0cea510c7bfdc5a9da84458d32b004537140d372f11deb313ad34c90634922acee5dc2065dac85a7f0620ee619172a91af2c79a31911eb58602b1725fe8d3f56640f3d4c55d62e2d9ff2668ff0325041202fdb9218585ef9fb4f2973fbe4b4affc9457283f5b505fa6e8293d6081b152a21804238447aaa631008967ba82392cfad6e3b6bac9d235725253ee452ad7d7c167725921ee1aefcf43d60908c5e471d7d67c767eb17595e2c0fb5e3e203e4b0a7548dd2dc9e74ae3e5daf749e19a5bb10f1491fcb3185ecff6241975682a53d69d793d14dbd4045262d1b52734b481e7465aae95d892e7dc44348b6d175a240d33ee7345fbd115597cccb36285df7225af0ac7b4878d9d2bbcd4adbf774ed778448da4f13ea51cba80c64f6ff6d5c0e30c3ac0fb5188f1bff923424d8562b2aabf03b0ed3dee574b9a8b17c2890e2cf8590dc84f7249667a0b06b8fc61138472596589db2a087ab479b946e10823b74e91ca2a8d79bb38e327b1e7',
         }
 
         async with self.client.session.request(method='GET', url=url, params=params) as response:
@@ -409,8 +409,9 @@ class Galxe(Logger, RequestClient):
 
         total_time = 0
         timeout = 600
+        domain_name = self.client.email_address.split('@')[-1]
         while True:
-            rambler_client = aioimaplib.IMAP4_SSL(f'imap.{EMAIL_DOMAIN}')
+            rambler_client = aioimaplib.IMAP4_SSL(IMAP_CONFIG.get(domain_name, f'imap.{domain_name}'))
 
             await rambler_client.wait_hello_from_server()
             await rambler_client.login(self.client.email_address, self.client.email_password)
