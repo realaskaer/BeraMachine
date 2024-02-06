@@ -421,8 +421,8 @@ class Galxe(Logger, RequestClient):
                 try:
                     last_message_number = data[2].decode().split()[0]
                 except:
-                    last_message_number = data[0].decode().split()[0]
-                    
+                    last_message_number = data[random.choice([0, 1, 3])].decode().split()[0]
+
                 message = await rambler_client.fetch(f"{last_message_number}", '(RFC822)')
                 message_content = message[1][1]
                 message = message_from_bytes(message_content)
