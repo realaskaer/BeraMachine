@@ -426,7 +426,14 @@ class Galxe(Logger, RequestClient):
                     last_message_number = data[random.choice([0, 1, 3])].decode().split()[0]
 
                 message = await rambler_client.fetch(f"{last_message_number}", '(RFC822)')
-                message_content = message[1][1]
+                try:
+                    message_content = message[1][1]
+                except:
+                    try:
+                        message_content = message[1][0]
+                    except:
+                        message_content = message[1]
+
                 message = message_from_bytes(message_content)
 
                 soup = BeautifulSoup(message.as_string(), 'html.parser')
