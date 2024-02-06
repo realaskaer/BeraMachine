@@ -2,6 +2,8 @@ import json
 import random
 import string
 import asyncio
+import traceback
+
 import aioimaplib
 
 from config import IMAP_CONFIG
@@ -438,6 +440,7 @@ class Galxe(Logger, RequestClient):
                         break
                     continue
             except Exception as error:
+                traceback.print_exc()
                 self.logger_msg(
                     *self.client.acc_info, msg=f"Error in <get_email_code> function: {error}", type_msg='warning')
                 total_time += 15
