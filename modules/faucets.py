@@ -1,5 +1,4 @@
 import asyncio
-import json
 
 from general_settings import TWO_CAPTCHA_API_KEY
 from modules import Logger, RequestClient
@@ -68,31 +67,30 @@ class Faucet(Logger, RequestClient):
         captcha_key = await self.get_captcha_key(task_id)
 
         headers = {
-            ':authority': 'artio-80085-faucet-api-recaptcha.berachain.com',
-            ':method:': 'POST',
-            ':path:': f"/api/claim?address={self.client.address}",
-            ':scheme:': 'https',
-            'Accept': '*/*',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Accept-Language': 'ru,en;q=0.9,en-GB;q=0.8,en-US;q=0.7',
-            'Authorization': f'Bearer {captcha_key}',
-            'Content-Length': '56',
-            'Content-Type': 'text/plain;charset=UTF-8',
-            'Origin': 'https://artio.faucet.berachain.com',
-            'Referer': 'https://artio.faucet.berachain.com/',
-            'Sec-Ch-Ua': '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
-            'Sec-Ch-Ua-Mobile': '?0',
-            'Sec-Ch-Ua-Platform': '"Windows"',
-            'Sec-Fetch-Dest': 'empty',
-            'Sec-Fetch-Mode': 'cors',
-            'Sec-Fetch-Site': 'same-site'
+            "authority": "artio-80085-faucet-api-recaptcha.berachain.com",
+            "method": "POST",
+            "path": f"/api/claim?address={self.client.address}",
+            "scheme": "https",
+            "accept": "*/*",
+            "accept-Encoding": "gzip, deflate, br",
+            "accept-Language": "ru,en;q=0.9,en-GB;q=0.8,en-US;q=0.7",
+            "authorization": f"Bearer {captcha_key}",
+            "content-type": "application/json",
+            "origin": "https://artio.faucet.berachain.com",
+            "referer": "https://artio.faucet.berachain.com/",
+            "sec-ch-ua": '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
+            "sec-ch-ua-Mobile": "?0",
+            "sec-ch-ua-Platform": "Windows",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-site",
         }
 
         params = {
-            'address': self.client.address
+            "address": f"{self.client.address}"
         }
 
-        await self.make_request(method="POST", url=url, params=params, data=json.dumps(params), headers=headers)
+        await self.make_request(method="POST", url=url, params=params, json=params, headers=headers)
 
         self.logger_msg(*self.client.acc_info, msg=f'$BERA was successfully claimed on faucet', type_msg='success')
 

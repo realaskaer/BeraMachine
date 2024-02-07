@@ -1,5 +1,6 @@
 import asyncio
 import random
+import ssl
 
 from asyncio import sleep
 from aiohttp import ClientSession
@@ -26,8 +27,7 @@ class Client(Logger):
 
         self.proxy_init = proxy
 
-        self.session = ClientSession(connector=ProxyConnector.from_url(f"http://{proxy}"))
-
+        self.session = ClientSession(connector=ProxyConnector.from_url(f'http://{proxy}', ssl=ssl.create_default_context(), verify_ssl=True))
         self.request_kwargs = {"proxy": f"http://{proxy}"} if proxy else {}
         self.rpc = random.choice(BeraChainRPC.rpc)
         self.w3 = AsyncWeb3(AsyncHTTPProvider(self.rpc, request_kwargs=self.request_kwargs))

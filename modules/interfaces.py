@@ -1,5 +1,4 @@
 import asyncio
-
 import aiohttp.client_exceptions
 from loguru import logger
 from sys import stderr
@@ -70,15 +69,16 @@ class RequestClient(ABC):
 
         errors = None
         headers = (headers or {}) | {'User-Agent': get_user_agent()}
-        async with self.client.session.request(method=method, url=url, headers=headers, data=data,
-                                               params=params, json=json) as response:
+        
+        async with self.client.session.request(
+                method=method, url=url, headers=headers, data=data, params=params, json=json
+        ) as response:
 
             total_time = 0
             timeout = 360
             while True:
                 try:
                     data = await response.json()
-
                     if response.status == 200:
                         if isinstance(data, dict):
                             errors = data.get('errors')
