@@ -4,7 +4,7 @@ from modules import RequestClient, Logger
 from modules.interfaces import SoftwareException
 from utils.tools import helper
 from config import BEX_ABI, TOKENS_PER_CHAIN, BEX_CONTRACTS, ZERO_ADDRESS, HONEY_CONTRACTS, HONEY_ABI, HONEYJAR_ABI, \
-    HONEYJAR_CONTRACTS
+    HONEYJAR_CONTRACTS, BEND_CONTRACTS, BEND_ABI
 
 
 class BeraChain(Logger, RequestClient):
@@ -18,6 +18,7 @@ class BeraChain(Logger, RequestClient):
         self.honey_router_contract = self.client.get_contract(HONEY_CONTRACTS['router'], HONEY_ABI['router'])
         self.pool_contract = self.client.get_contract(BEX_CONTRACTS['bera_usdc_pool'], BEX_ABI['router'])
         self.honeyjar_contract = self.client.get_contract(HONEYJAR_CONTRACTS['router'], HONEYJAR_ABI['router'])
+        self.bend_contract = self.client.get_contract(BEND_CONTRACTS['router'], BEND_ABI['router'])
 
     async def get_min_amount_out(self, from_token_address: str, to_token_address: str, amount_in_wei: int):
         min_amount_out = await self.bex_router_contract.functions.querySwap(
@@ -141,5 +142,106 @@ class BeraChain(Logger, RequestClient):
 
         return await self.client.send_transaction(transaction)
 
+    @helper
+    async def supply_honey_bend(self):
+        amount = round(random.uniform(0.1, 0.5), 4)
+        amount_in_wei = int(amount * 10 ** 18)
 
-    
+        self.logger_msg(*self.client.acc_info, msg=f'Supply {amount} $HONEY on Bend Dashboard')
+
+        from_token_address = TOKENS_PER_CHAIN[self.network]['HONEY']
+
+        await self.client.check_for_approved(from_token_address, BEND_CONTRACTS['router'], amount_in_wei)
+
+        transaction = await self.bend_contract.functions.supply(
+            from_token_address,
+            amount_in_wei,
+            self.client.address,
+            0
+        ).build_transaction(await self.client.prepare_transaction())
+
+        return await self.client.send_transaction(transaction)
+
+    @helper
+    async def withdraw_honey_bend(self):
+        self.logger_msg(*self.client.acc_info, msg=f'Withdraw $HONEY from Bend Dashboard')
+
+        from_token_address = TOKENS_PER_CHAIN[self.network]['HONEY']
+
+        transaction = await self.bend_contract.functions.withdraw(
+            from_token_address,
+            2 ** 256 - 1,
+            self.client.address,
+        ).build_transaction(await self.client.prepare_transaction())
+
+        return await self.client.send_transaction(transaction)
+
+    @helper
+    async def supply_btc_bend(self):
+        amount = round(random.uniform(0.00001, 0.00005), 6)
+        amount_in_wei = int(amount * 10 ** 18)
+
+        self.logger_msg(*self.client.acc_info, msg=f'Supply {amount} $BTC on Bend Dashboard')
+
+        from_token_address = TOKENS_PER_CHAIN[self.network]['WBTC']
+
+        await self.client.check_for_approved(from_token_address, BEND_CONTRACTS['router'], amount_in_wei)
+
+        transaction = await self.bend_contract.functions.supply(
+            from_token_address,
+            amount_in_wei,
+            self.client.address,
+            0
+        ).build_transaction(await self.client.prepare_transaction())
+
+        return await self.client.send_transaction(transaction)
+
+    @helper
+    async def withdraw_btc_bend(self):
+        self.logger_msg(*self.client.acc_info, msg=f'Withdraw $BTC from Bend Dashboard')
+
+        from_token_address = TOKENS_PER_CHAIN[self.network]['WBTC']
+
+        transaction = await self.bend_contract.functions.withdraw(
+            from_token_address,
+            2 ** 256 - 1,
+            self.client.address,
+        ).build_transaction(await self.client.prepare_transaction())
+
+        return await self.client.send_transaction(transaction)
+
+    @helper
+    async def supply_eth_bend(self):
+        amount = round(random.uniform(0.00001, 0.0005), 6)
+        amount_in_wei = int(amount * 10 ** 18)
+
+        self.logger_msg(*self.client.acc_info, msg=f'Supply {amount} $ETH on Bend Dashboard')
+
+        from_token_address = TOKENS_PER_CHAIN[self.network]['WETH']
+
+        await self.client.check_for_approved(from_token_address, BEND_CONTRACTS['router'], amount_in_wei)
+
+        transaction = await self.bend_contract.functions.supply(
+            from_token_address,
+            amount_in_wei,
+            self.client.address,
+            0
+        ).build_transaction(await self.client.prepare_transaction())
+
+        return await self.client.send_transaction(transaction)
+
+    @helper
+    async def withdraw_eth_bend(self):
+        self.logger_msg(*self.client.acc_info, msg=f'Withdraw $ETH from Bend Dashboard')
+
+        from_token_address = TOKENS_PER_CHAIN[self.network]['WETH']
+
+        transaction = await self.bend_contract.functions.withdraw(
+            from_token_address,
+            2 ** 256 - 1,
+            self.client.address,
+        ).build_transaction(await self.client.prepare_transaction())
+
+        return await self.client.send_transaction(transaction)
+
+

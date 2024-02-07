@@ -55,6 +55,13 @@ TG_ID = ""  # https://t.me/getmyid_bot
     swap_btc_bex           # свап на BEX ($BERA -> $BTC)
     swap_honey_bex         # свап на BEX ($BERA -> $HONEY)
     swap_stgusdc_bex       # свап на BEX ($BERA -> $STGUSDC)
+    swap_eth_bex           # свап на BEX ($BERA -> $ETH)
+    supply_honey_bend      # добавление $HONEY ликвидности на Bend           
+    supply_btc_bend        # добавление $BTC ликвидности на Bend      
+    supply_eth_bend        # добавление $ETH ликвидности на Bend      
+    withdraw_honey_bend    # вывод $HONEY ликвидности на Bend         
+    withdraw_btc_bend      # вывод $BTC ликвидности на Bend           
+    withdraw_eth_bend      # вывод $ETH ликвидности на Bend           
     add_liqiudity_bex      # добавление ликвидности на BEX
     mint_honey             # минт $HONEY за $STGUSDC
     mint_booga_ticket      # минт OOGA BOOGA Ticket за 4.2 $HONEY
@@ -76,7 +83,10 @@ TG_ID = ""  # https://t.me/getmyid_bot
 CLASSIC_ROUTES_MODULES_USING = [
     ['mint_berachain_tokens'],
     ['swap_stgusdc_bex'],
+    ['swap_eth_bex', 'swap_btc_bex'],
     ['add_liqiudity_bex'],
     ['mint_honey'],
+    ['mint_booga_ticket', None],
+    ['supply_honey_bend', 'supply_btc_bend', 'supply_eth_bend'],
     ['claim_galxe_points']
 ]

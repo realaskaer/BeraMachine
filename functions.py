@@ -27,6 +27,11 @@ async def swap_btc_bex(account_number, private_key, proxy, *_, **kwargs):
     return await worker.swap_btc_bex(**kwargs)
 
 
+async def swap_eth_bex(account_number, private_key, proxy, *_, **kwargs):
+    worker = Custom(get_client(account_number, private_key, proxy))
+    return await worker.swap_eth_bex(**kwargs)
+
+
 async def swap_honey_bex(account_number, private_key, proxy, *_, **kwargs):
     worker = Custom(get_client(account_number, private_key, proxy))
     return await worker.swap_honey_bex(**kwargs)
@@ -40,6 +45,36 @@ async def swap_stgusdc_bex(account_number, private_key, proxy, *_, **kwargs):
 async def add_liqiudity_bex(account_number, private_key, proxy, *_, **kwargs):
     worker = BeraChain(get_client(account_number, private_key, proxy))
     return await worker.add_liquidity_bex(**kwargs)
+
+
+async def supply_honey_bend(account_number, private_key, proxy, *_, **kwargs):
+    worker = BeraChain(get_client(account_number, private_key, proxy))
+    return await worker.supply_honey_bend(**kwargs)
+
+
+async def supply_btc_bend(account_number, private_key, proxy, *_, **kwargs):
+    worker = BeraChain(get_client(account_number, private_key, proxy))
+    return await worker.supply_btc_bend(**kwargs)
+
+
+async def supply_eth_bend(account_number, private_key, proxy, *_, **kwargs):
+    worker = BeraChain(get_client(account_number, private_key, proxy))
+    return await worker.supply_eth_bend(**kwargs)
+
+
+async def withdraw_honey_bend(account_number, private_key, proxy, *_, **kwargs):
+    worker = BeraChain(get_client(account_number, private_key, proxy))
+    return await worker.withdraw_honey_bend(**kwargs)
+
+
+async def withdraw_btc_bend(account_number, private_key, proxy, *_, **kwargs):
+    worker = BeraChain(get_client(account_number, private_key, proxy))
+    return await worker.withdraw_btc_bend(**kwargs)
+
+
+async def withdraw_eth_bend(account_number, private_key, proxy, *_, **kwargs):
+    worker = BeraChain(get_client(account_number, private_key, proxy))
+    return await worker.withdraw_eth_bend(**kwargs)
 
 
 async def mint_honey(account_number, private_key, proxy, *_, **kwargs):
