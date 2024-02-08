@@ -134,7 +134,7 @@ class Runner(Logger):
 
     def get_proxy_for_account(self, account_name):
         try:
-            account_number = ACCOUNT_NAMES.index(account_name) + 1
+            account_number = ACCOUNT_NAMES.index(account_name)
             num_proxies = len(PROXIES)
             return PROXIES[account_number % num_proxies]
         except Exception as error:
