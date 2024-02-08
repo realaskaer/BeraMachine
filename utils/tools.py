@@ -128,8 +128,7 @@ def helper(func):
     @functools.wraps(func)
     async def wrapper(self, *args, **kwargs):
         from modules.interfaces import (
-            PriceImpactException,BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
-            BlockchainExceptionWithoutRetry
+            PriceImpactException,BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry
         )
 
         attempts = 0
@@ -139,8 +138,7 @@ def helper(func):
                 try:
                     return await func(self, *args, **kwargs)
                 except (PriceImpactException, BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
-                        BlockchainExceptionWithoutRetry, asyncio.exceptions.TimeoutError, TimeExhausted, ValueError,
-                        ContractLogicError) as err:
+                        asyncio.exceptions.TimeoutError, TimeExhausted, ValueError) as err:
                     error = err
                     attempts += 1
 
@@ -154,16 +152,13 @@ def helper(func):
                         stop_flag = True
                         msg = f'{error}'
 
-                    elif isinstance(error, (BlockchainException, BlockchainExceptionWithoutRetry)):
+                    elif isinstance(error, (BlockchainException)):
 
                         if any([i in str(error) for i in ['insufficient funds', 'gas required']]):
                             stop_flag = True
                             network_name = self.client.network.name
                             msg = f'Insufficient funds on {network_name}, software will stop this action\n'
                         else:
-                            if isinstance(error, BlockchainExceptionWithoutRetry):
-                                stop_flag = True
-                                msg = f'{error}'
 
                             self.logger_msg(
                                 self.client.account_name,
