@@ -128,58 +128,64 @@ def helper(func):
     @functools.wraps(func)
     async def wrapper(self, *args, **kwargs):
         from modules.interfaces import (
-            PriceImpactException,BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry
+            PriceImpactException,BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
+            BlockchainExceptionWithoutRetry
         )
 
         attempts = 0
-        error = None
         stop_flag = False
         try:
             while attempts <= MAXIMUM_RETRY:
                 try:
                     return await func(self, *args, **kwargs)
                 except (PriceImpactException, BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
-                        asyncio.exceptions.TimeoutError, TimeExhausted, ValueError) as err:
+                        BlockchainExceptionWithoutRetry, asyncio.exceptions.TimeoutError, TimeExhausted, ValueError,
+                        ContractLogicError) as err:
                     error = err
                     attempts += 1
 
-                except Exception as err:
-                    error = err
-                    attempts += 1
-                    traceback.print_exc()
-                finally:
                     msg = f'{error} | Try[{attempts}/{MAXIMUM_RETRY + 1}]'
-                    if attempts:
-                        if isinstance(error, asyncio.exceptions.TimeoutError):
-                            error = 'Connection to RPC is not stable'
+                    if isinstance(error, asyncio.exceptions.TimeoutError):
+                        error = 'Connection to RPC is not stable'
+                        await self.client.change_rpc()
+                        msg = f'{error} | Try[{attempts}/{MAXIMUM_RETRY + 1}]'
+
+                    elif isinstance(error, SoftwareExceptionWithoutRetry):
+                        stop_flag = True
+                        msg = f'{error}'
+
+                    elif isinstance(error, (BlockchainException, BlockchainExceptionWithoutRetry)):
+
+                        if any([i in str(error) for i in ['insufficient funds', 'gas required']]):
+                            stop_flag = True
+                            network_name = self.client.network.name
+                            msg = f'Insufficient funds on {network_name}, software will stop this action\n'
+                        else:
+                            if isinstance(error, BlockchainExceptionWithoutRetry):
+                                stop_flag = True
+                                msg = f'{error}'
+
+                            self.logger_msg(
+                                self.client.account_name,
+                                None, msg=f'Maybe problem with node: {self.client.rpc}', type_msg='warning')
                             await self.client.change_rpc()
 
-                        elif isinstance(error, SoftwareExceptionWithoutRetry):
-                            stop_flag = True
-                            msg = f'{error}'
+                    self.logger_msg(self.client.account_name, None, msg=msg, type_msg='error')
 
-                        elif isinstance(error, BlockchainException):
+                    if stop_flag:
+                        break
 
-                            if any([i in str(error) for i in ['insufficient funds']]):
-                                stop_flag = True
-                                network_name = self.client.network.name
-                                msg = f'Insufficient funds on {network_name}, software will stop this action\n'
-                            else:
-                                self.logger_msg(
-                                    self.client.account_name,
-                                    None, msg=f'Maybe problem with node: {self.client.rpc}', type_msg='warning')
-                                await self.client.change_rpc()
-
-                        self.logger_msg(self.client.account_name, None, msg=msg, type_msg='error')
-
-                        if stop_flag:
-                            break
-
+                    if attempts > MAXIMUM_RETRY:
+                        self.logger_msg(self.client.account_name,
+                                        None, msg=f"Tries are over, software will stop module\n", type_msg='error')
+                    else:
                         await sleep(self, *SLEEP_TIME_RETRY)
 
-                        if attempts > MAXIMUM_RETRY:
-                            self.logger_msg(self.client.account_name,
-                                            None, msg=f"Tries are over, software will stop module\n", type_msg='error')
+                except Exception as error:
+                    msg = f'Unknown Error. Description: {error}'
+                    self.logger_msg(self.client.account_name, None, msg=msg, type_msg='error')
+                    traceback.print_exc()
+                    break
         finally:
             await self.client.session.close()
         return False
