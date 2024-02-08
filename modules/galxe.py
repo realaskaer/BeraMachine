@@ -7,6 +7,7 @@ import traceback
 import aioimaplib
 
 from config import IMAP_CONFIG
+from modules.interfaces import SoftwareExceptionWithoutRetry
 from utils.tools import helper
 from datetime import datetime, timedelta
 from modules import Logger, RequestClient
@@ -366,7 +367,7 @@ class Galxe(Logger, RequestClient):
             "process_token": captcha_data['process_token'],
             "payload_protocol": "1",
             "pt": "1",
-            "w": '7e6fc8ad7c482b10b73d21da081fb891d5fd8f2ee7248d23c753bbb05cd82914fcf742944f31c1bcd92f91c6c24e704e5042bf6418fafd05992159bfd2fb0fb84628b4641ef10f00369f9b3f62a6e99f9a67a227cdf756ad68aff37581eaf71ba1f78839027c68e6439f70b5399c1a784ebaf921b77785b059a7e03eb86f0c8b0bfe1ff35165ae30f27073213a8dd3de5b67244221abc999f01594b109747096e408da7a19700d2e1b8df4c7f100d92f76da871bf01d74f3db349092432179ee1c67aad8896550b7cb88f8dceae23096630566a9613ea45f5a906231d3638ea529facae3ef8f0bfbdfebd89aa24ddb5fcb8ea6a6810a5295203337294274f70c64143e4b51e8d98561b5fe3875bee0aae673f4b5bf35cc1ea1216bee81768a2cbba4d03d17c5b206f3926c2eb45db33cc2c09722cf69d938f81f42ea641d16517cdec725b7f6b3123c9e2e37e8142b6afae534e0bff9ed5f78dbb30dbf3fd1534fe5902e57dea4436a9e9547ddddfd8ec4b9a879b51f30eaa7e57eb27352e3d3340815e079fa1a6449ec74671e2216aa47b32cc57a08d7200ef6ab121c665fb7f52ac8f74e83d148ca27082c6ae402b60401e30d717baa735418185c9222f903de4fa83d61ca873044f1c678daee706df0de86b588517dae95f31d609dcffd9900c30af803d04774c6a5483a06ceafe87121f914733c6e930d80cf2937e0a6cf',
+            "w": 'f20bbd52bb1453c730cf894a730ec0fb87d54763df0240225ad60835a0bb22a29474996f205ef8ea46b1d891c294571f353854169f74fbf0143f628affc1556795159eba9283b0aa6a72d6209f37aec269178d233b074043e57de6e861c6c2c20ff9d9710a5420277bc40c3cfb794faeeeacc3673d926cac52df8b1d66610baef0eee70e6f61b7c230504c6d1d28e79504a60b9eed2418dcd02479afdeb4ccb1fb9256203b12ff20e899e922dfd2ee41222e602d35dca3fef9f50b4991dcdd4571b52e0044db82b04a5d10864ad7eca2e0f44f99ac1265a937e7848aa8587047b398bd38bdb8d8b9f735b35aa9f3246b155b0a195af3baf2c3769ae93e12a1ed2c961309f39771c9ec58343a0604137b9a52c7841b8d99fe602d4fb132b05dceea0a3cd5a4d30cb79b31bba7c13a8503c093bd19032bac54174066c6bff2ee25332643b4bc8629c87de1efa60ea10138470a6ac5f8e6f5f62624a616efcab64981df926e4eb3c312a1a4c5755c53a2cd4463f2011539983d7620868f0ecab6792f84b0f65f50598e943749b2a558dca34f46b027c44c4aa0002308496e060e3dc5cf7b69d49f04dd4bdf4e04b2a371df0bfb2e6f5f9a8562f239191e9913d5280f1c49e5bef0cec9ca7d00dabcbcbb6d61d18378a5594e3f4ea5a4e755e9091329c72079a8c03d4d64b16f8ab1fb4614ae0138c393561e932ca5edc9d176e593',
         }
 
         async with self.client.session.request(method='GET', url=url, params=params) as response:
@@ -450,10 +451,11 @@ class Galxe(Logger, RequestClient):
                 traceback.print_exc()
                 self.logger_msg(
                     *self.client.acc_info, msg=f"Error in <get_email_code> function: {error}", type_msg='warning')
-                total_time += 15
-                await asyncio.sleep(15)
+                total_time += 60
+                await asyncio.sleep(10)
                 if total_time > timeout:
-                    break
+                    traceback.print_exc()
+                    raise SoftwareExceptionWithoutRetry('Can`t get confirmation code from email!')
                 continue
 
     @helper
