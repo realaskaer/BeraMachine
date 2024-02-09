@@ -89,7 +89,7 @@ async def mint_booga_ticket(account_number, private_key, proxy, *_, **kwargs):
 
 async def mint_bera_red(account_number, private_key, proxy, *_, **kwargs):
     worker = BeraChain(get_client(account_number, private_key, proxy))
-    return await worker.mint_booga_ticket(**kwargs)
+    return await worker.mint_bera_red(**kwargs)
 
 
 async def claim_galxe_points(account_number, private_key, proxy, email_address, email_password, **kwargs):
