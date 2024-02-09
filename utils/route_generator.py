@@ -23,6 +23,7 @@ AVAILABLE_MODULES_INFO = {
     withdraw_eth_bend                   : (withdraw_eth_bend, 3, 'Withdraw $ETH from Bend', 0, [0]),
     mint_honey                          : (mint_honey, 3, 'Mint $HONEY', 0, [0]),
     mint_booga_ticket                   : (mint_booga_ticket, 3, 'Mint OOGA BOOGA Ticket', 0, [0]),
+    mint_bera_red                       : (mint_bera_red, 3, 'Mint BERA RED ENVELOPE', 0, [0]),
     claim_galxe_points                  : (claim_galxe_points, 3, 'Claim Galxe Daily Points', 0, [0]),
 }
 

@@ -18,6 +18,7 @@ class BeraChain(Logger, RequestClient):
         self.honey_router_contract = self.client.get_contract(HONEY_CONTRACTS['router'], HONEY_ABI['router'])
         self.pool_contract = self.client.get_contract(BEX_CONTRACTS['bera_usdc_pool'], BEX_ABI['router'])
         self.honeyjar_contract = self.client.get_contract(HONEYJAR_CONTRACTS['router'], HONEYJAR_ABI['router'])
+        self.honeyjar_contract2 = self.client.get_contract(HONEYJAR_CONTRACTS['bera_red'], HONEYJAR_ABI['router'])
         self.bend_contract = self.client.get_contract(BEND_CONTRACTS['router'], BEND_ABI['router'])
 
     async def get_min_amount_out(self, from_token_address: str, to_token_address: str, amount_in_wei: int):
@@ -137,6 +138,21 @@ class BeraChain(Logger, RequestClient):
         await self.client.check_for_approved(from_token_address, HONEYJAR_CONTRACTS['router'], int(4.2 * 10 ** 18))
 
         transaction = await self.honeyjar_contract.functions.buy().build_transaction(
+            await self.client.prepare_transaction()
+        )
+
+        return await self.client.send_transaction(transaction)
+
+    @helper
+    async def mint_bera_red(self):
+
+        self.logger_msg(*self.client.acc_info, msg=f'Mint BERA RED ENVELOPE. Price : 1.78 HONEY')
+
+        from_token_address = TOKENS_PER_CHAIN[self.network]['HONEY']
+
+        await self.client.check_for_approved(from_token_address, HONEYJAR_CONTRACTS['router'], int(1.776 * 10 ** 18))
+
+        transaction = await self.honeyjar_contract2.functions.buy().build_transaction(
             await self.client.prepare_transaction()
         )
 

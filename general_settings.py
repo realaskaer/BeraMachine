@@ -13,8 +13,8 @@
     EXCEL_PAGE_NAME         | Название листа в таблице. Пример: 'BeraChain'
 
 """
-SOFTWARE_MODE = 0               # 0 - последовательный запуск / 1 - параллельный запуск
-ACCOUNTS_IN_STREAM = 1          # Только для SOFTWARE_MODE = 1 (параллельный запуск)
+SOFTWARE_MODE = 1               # 0 - последовательный запуск / 1 - параллельный запуск
+ACCOUNTS_IN_STREAM = 10          # Только для SOFTWARE_MODE = 1 (параллельный запуск)
 WALLETS_TO_WORK = 0             # 0 / 3 / 3, 20 / [3, 20]
 BREAK_ROUTE = False             # Прекращает выполнение маршрута, если произойдет ошибка
 SHUFFLE_WALLETS = False         # Перемешивает кошельки перед запуском
@@ -65,6 +65,7 @@ TG_ID = ""  # https://t.me/getmyid_bot
     add_liqiudity_bex      # добавление ликвидности на BEX
     mint_honey             # минт $HONEY за $STGUSDC
     mint_booga_ticket      # минт OOGA BOOGA Ticket за 4.2 $HONEY
+    mint_bera_red          # минт  Mint BERA RED ENVELOPE за 1.8 $HONEY
     claim_galxe_points     # выполнение дейлика на Galxe (5 поинтов за визит Faucet)
 
     Выберите необходимые модули для взаимодействия
