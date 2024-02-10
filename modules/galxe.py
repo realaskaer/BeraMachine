@@ -7,7 +7,8 @@ import traceback
 import aioimaplib
 
 from config import IMAP_CONFIG
-from modules.interfaces import SoftwareExceptionWithoutRetry
+from general_settings import TWO_CAPTCHA_API_KEY
+from modules.interfaces import SoftwareExceptionWithoutRetry, SoftwareException
 from utils.tools import helper
 from datetime import datetime, timedelta
 from modules import Logger, RequestClient
@@ -23,81 +24,91 @@ class Galxe(Logger, RequestClient):
         self.user_info = None
         self.base_url = 'https://graphigo.prd.galaxy.eco/query'
 
-    # async def create_task_for_captcha(self):
-    #     url = 'https://api.capsolver.com/createTask'
+    # async def report_captcha(self):
+    #     url = 'https://2captcha.com/res.php'
     #
-    #     # payload = {
-    #     #     "clientKey": TWO_CAPTCHA_API_KEY,
-    #     #     "task": {
-    #     #         "type": "GeeTestTaskProxyless",
-    #     #         "websiteURL": "https://galxe.com/Berachain/campaign/GCTN3ttM4T",
-    #     #         "version": 4,
-    #     #         "initParameters": {
-    #     #             "captcha_id": "244bcb8b9846215df5af4c624a750db4"
-    #     #         }
-    #     #     }
-    #     # }
-    #     # two_lists_proxy = reversed([item.split(':') for item in self.client.proxy_init.split('@')])
-    #     # proxy = ':'.join([':'.join(inner_list) for inner_list in two_lists_proxy])
-    #     # print(proxy)
-    #
-    #     payload = {
-    #         "clientKey": TWO_CAPTCHA_API_KEY,
-    #         "task": {
-    #             "type":"GeeTestTaskProxyless",
-    #             "websiteURL":"https://galxe.com/",
-    #             "captchaId": "244bcb8b9846215df5af4c624a750db4",
-    #         }
+    #     params = {
+    #         'key': TWO_CAPTCHA_API_KEY,
+    #         'action': 'reportbad',
+    #         'id': '244bcb8b9846215df5af4c624a750db4',
+    #         'json': 1
     #     }
     #
-    #     response = await self.make_request(method="POST", url=url, json=payload, module_name='Create task for captcha')
+    #     print(await self.make_request(url=url, params=params))
     #
-    #     if not response['errorId']:
-    #         return response['taskId']
-    #     raise SoftwareException('Bad request to 2Captcha(Create Task)')
-    #
-    # async def get_captcha_data(self):
-    #     url = 'https://api.capsolver.com/getTaskResult'
-    #
-    #     counter = 0
-    #     while True:
-    #         task_id = await self.create_task_for_captcha()
-    #
-    #         payload = {
-    #             "clientKey": TWO_CAPTCHA_API_KEY,
-    #             "taskId": task_id
-    #         }
-    #
-    #         total_time = 0
-    #         timeout = 360
-    #         while True:
-    #             try:
-    #                 response = await self.make_request(method="POST", url=url, json=payload)
-    #
-    #                 if response['status'] == 'ready':
-    #                     captcha_data = response['solution']
-    #                     print(captcha_data)
-    #                     return {
-    #                         "lotNumber": captcha_data['lot_number'],
-    #                         "passToken": captcha_data['pass_token'],
-    #                         "genTime": captcha_data['gen_time'],
-    #                         "captchaOutput": captcha_data['captcha_output'][:-1],
-    #                     }
-    #
-    #                 total_time += 5
-    #                 await asyncio.sleep(5)
-    #
-    #                 if total_time > timeout:
-    #                     raise SoftwareException('Can`t get captcha solve in 360 second')
-    #             except KeyError:
-    #                 counter += 1
-    #                 if counter > 5:
-    #                     raise SoftwareException('Can`t solve captcha in 5 tries')
-    #                 self.logger_msg(
-    #                     *self.client.acc_info, msg=f'Bad captcha solve from 2captcha, trying again...',
-    #                     type_msg='warning')
-    #                 await asyncio.sleep(30)
-    #                 break
+    #     self.logger_msg(
+    #         *self.client.acc_info, msg=f'Successfully requested a refund for bad solution', type_msg='success')
+
+    async def create_task_for_captcha(self):
+        url = 'https://api.2captcha.com/createTask'
+
+        payload = {
+            "clientKey": TWO_CAPTCHA_API_KEY,
+            "task": {
+                "type": "GeeTestTaskProxyless",
+                "websiteURL": "https://galxe.com",
+                "version": 4,
+                "initParameters": {
+                    "captcha_id": "244bcb8b9846215df5af4c624a750db4"
+                }
+            }
+        }
+
+        response = await self.make_request(method="POST", url=url, json=payload, module_name='Create task for captcha')
+
+        if not response['errorId']:
+            return response['taskId']
+        raise SoftwareException('Bad request to 2Captcha(Create Task)')
+
+    async def get_captcha_data(self):
+        url = 'https://api.2captcha.com/getTaskResult'
+
+        counter = 0
+        while True:
+            task_id = await self.create_task_for_captcha()
+
+            payload = {
+                "clientKey": TWO_CAPTCHA_API_KEY,
+                "taskId": task_id
+            }
+
+            headers = {
+                'content-type': 'text/plain; charset=utf-8'
+            }
+
+            # response = None
+            total_time = 0
+            timeout = 360
+            while True:
+                try:
+                    response = await self.make_request(method="POST", url=url, json=payload, headers=headers)
+
+                    if response['status'] == 'ready':
+                        captcha_data = response['solution']
+
+                        return {
+                            "lotNumber": captcha_data['lot_number'],
+                            "passToken": captcha_data['pass_token'],
+                            "genTime": captcha_data['gen_time'],
+                            "captchaOutput": captcha_data['captcha_output'],
+                        }
+
+                    total_time += 5
+                    await asyncio.sleep(5)
+
+                    if total_time > timeout:
+                        raise SoftwareException('Can`t get captcha solve in 360 second')
+                except KeyError:
+                    counter += 1
+                    if counter > 10:
+                        raise SoftwareException('Can`t solve captcha in 10 tries')
+                    self.logger_msg(
+                        *self.client.acc_info, msg=f'Bad captcha solve from 2captcha, trying again in 30 second...',
+                        type_msg='warning')
+                    # if int(response.get('errorId')) != 12:
+                    #     await self.report_captcha()
+                    await asyncio.sleep(30)
+                    break
 
     async def check_galxe_id_exist(self):
         payload = {
@@ -351,35 +362,35 @@ class Galxe(Logger, RequestClient):
         async with self.client.session.request(method='GET', url=url, params=params) as response:
             return (json.loads((await response.text()).split(f"{callback}(")[1][:-1]))['data']
 
-    async def get_captcha_data(self):
-        url = 'https://gcaptcha4.geetest.com/verify'
-
-        captcha_data = await self.get_gcaptcha4_data()
-
-        callback = f"geetest_{round(time() * 1000)}"
-
-        params = {
-            "callback": callback,
-            "captcha_id": "244bcb8b9846215df5af4c624a750db4",
-            "client_type": "web",
-            "lot_number": captcha_data['lot_number'],
-            "payload": captcha_data['payload'],
-            "process_token": captcha_data['process_token'],
-            "payload_protocol": "1",
-            "pt": "1",
-            "w": '993c7e27cd5f1b1df9e6e87a5b614297949138115a2785fd180574035d19e969be90bce9d785db24c19a94e1555d8bde29750fd912d26af9ce7d7052f979d48e13fc2b5584ff72f89cd8015fca83126115ca627aac0e02ec5849081a72468a16ffb359df04b7398ea97c79386de8a25bb332b743f6d984d3bb6b39edbf13d0443c19d40b95327f4556d2928e9068ec37ebc63358f1086f7bd461364757aefecc84bf4860a6a7f06ca6406bdac3a3bd9b80c6f1092a525eb5360e5e0aecf4f295d614d8bd1e0f375bb7ab0eee545905393093252dcfe17f9e4b4b738843d1fecf9553d0e601c9b5bdab2b87a625ed6db63118eee83df323ef6eb46cf4218c385255ea13a20d3f08d2ebd7fedf28f72ea820630832b196711145fe0b8fb24701c63f3e7976869ade6d363e18dc4d8bdc5075ab6d9ab2f6dc08ded9b0fc59a7186528dcfa9d2c33257b541d11b1b12f72329a3e7b34d5ad177fe93340278286077d76289d5e29215b4f19244a604dc1f7b7c31dfca1f50ec42d46322534f27e6eb2373b1ed1190697dd938cdef3580bac3ea20318b0d6ce510c8ce341b281460abc4565495e024a657f4b2364fff34a2eca75f3f0508a1a5bcb42be6b4285ae5c0e29f6d2643997df949894e098bfd85dd51599cf68eae460057a7628f05fcecbbf3ec1adb7ada6d285409a9f38627704982cffdb59e7a466440d953266edecd620',
-        }
-
-        async with self.client.session.request(method='GET', url=url, params=params) as response:
-            verify_data = (json.loads((await response.text()).split(f"{callback}(")[1][:-1]))['data']['seccode']
-
-        return {
-            "lotNumber": verify_data['lot_number'],
-            "passToken": verify_data['pass_token'],
-            "genTime": verify_data['gen_time'],
-            "captchaOutput": verify_data['captcha_output'],
-        }
-
+    # async def get_captcha_data(self):
+    #     url = 'https://gcaptcha4.geetest.com/verify'
+    #
+    #     captcha_data = await self.get_gcaptcha4_data()
+    #
+    #     callback = f"geetest_{round(time() * 1000)}"
+    #
+    #     params = {
+    #         "callback": callback,
+    #         "captcha_id": "244bcb8b9846215df5af4c624a750db4",
+    #         "client_type": "web",
+    #         "lot_number": captcha_data['lot_number'],
+    #         "payload": captcha_data['payload'],
+    #         "process_token": captcha_data['process_token'],
+    #         "payload_protocol": "1",
+    #         "pt": "1",
+    #         "w": '993c7e27cd5f1b1df9e6e87a5b614297949138115a2785fd180574035d19e969be90bce9d785db24c19a94e1555d8bde29750fd912d26af9ce7d7052f979d48e13fc2b5584ff72f89cd8015fca83126115ca627aac0e02ec5849081a72468a16ffb359df04b7398ea97c79386de8a25bb332b743f6d984d3bb6b39edbf13d0443c19d40b95327f4556d2928e9068ec37ebc63358f1086f7bd461364757aefecc84bf4860a6a7f06ca6406bdac3a3bd9b80c6f1092a525eb5360e5e0aecf4f295d614d8bd1e0f375bb7ab0eee545905393093252dcfe17f9e4b4b738843d1fecf9553d0e601c9b5bdab2b87a625ed6db63118eee83df323ef6eb46cf4218c385255ea13a20d3f08d2ebd7fedf28f72ea820630832b196711145fe0b8fb24701c63f3e7976869ade6d363e18dc4d8bdc5075ab6d9ab2f6dc08ded9b0fc59a7186528dcfa9d2c33257b541d11b1b12f72329a3e7b34d5ad177fe93340278286077d76289d5e29215b4f19244a604dc1f7b7c31dfca1f50ec42d46322534f27e6eb2373b1ed1190697dd938cdef3580bac3ea20318b0d6ce510c8ce341b281460abc4565495e024a657f4b2364fff34a2eca75f3f0508a1a5bcb42be6b4285ae5c0e29f6d2643997df949894e098bfd85dd51599cf68eae460057a7628f05fcecbbf3ec1adb7ada6d285409a9f38627704982cffdb59e7a466440d953266edecd620',
+    #     }
+    #
+    #     async with self.client.session.request(method='GET', url=url, params=params) as response:
+    #         verify_data = (json.loads((await response.text()).split(f"{callback}(")[1][:-1]))['data']['seccode']
+    #
+    #     return {
+    #         "lotNumber": verify_data['lot_number'],
+    #         "passToken": verify_data['pass_token'],
+    #         "genTime": verify_data['gen_time'],
+    #         "captchaOutput": verify_data['captcha_output'],
+    #     }
+    #
     async def click_faucet_quest(self):
         url = 'https://graphigo.prd.galaxy.eco/query'
 
@@ -460,6 +471,7 @@ class Galxe(Logger, RequestClient):
 
     @helper
     async def claim_galxe_points_berachain_faucet(self):
+
         self.logger_msg(*self.client.acc_info, msg=f"Check previous registration on Galxe")
 
         user_exist = await self.check_galxe_id_exist()
