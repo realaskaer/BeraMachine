@@ -150,7 +150,7 @@ class BeraChain(Logger, RequestClient):
 
         from_token_address = TOKENS_PER_CHAIN[self.network]['HONEY']
 
-        await self.client.check_for_approved(from_token_address, HONEYJAR_CONTRACTS['router'], int(1.776 * 10 ** 18))
+        await self.client.check_for_approved(from_token_address, HONEYJAR_CONTRACTS['bera_red'], int(1.776 * 10 ** 18))
 
         transaction = await self.honeyjar_contract2.functions.buy().build_transaction(
             await self.client.prepare_transaction()
