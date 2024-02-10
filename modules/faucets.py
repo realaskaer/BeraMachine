@@ -104,7 +104,7 @@ class Faucet(Logger, RequestClient):
         while True:
             try:
                 receipts = await self.client.w3.eth.get_transaction_receipt(tx_hash)
-                print(receipts)
+
                 status = receipts.get("status")
                 if status == 1:
                     message = f'Transaction was successful: {self.client.explorer}tx/{tx_hash}'
