@@ -2,7 +2,7 @@ import asyncio
 
 from web3.exceptions import TransactionNotFound
 
-from general_settings import TWO_CAPTCHA_API_KEY
+from general_settings import TWO_CAPTCHA_API_KEY, WAIT_FAUCET
 from modules import Logger, RequestClient
 from modules.interfaces import SoftwareException
 from utils.tools import helper
@@ -96,29 +96,31 @@ class Faucet(Logger, RequestClient):
 
         self.logger_msg(*self.client.acc_info, msg=f'$BERA was successfully claimed on faucet', type_msg='success')
 
-        self.logger_msg(*self.client.acc_info, msg=f'Waiting to receive $BERA from faucet')
+        if WAIT_FAUCET:
+            self.logger_msg(*self.client.acc_info, msg=f'Waiting to receive $BERA from faucet')
 
-        tx_hash = response.split()[-1]
+            tx_hash = response.split()[-1]
 
-        poll_latency = 60
-        while True:
-            try:
-                receipts = await self.client.w3.eth.get_transaction_receipt(tx_hash)
+            poll_latency = 60
+            while True:
+                try:
+                    receipts = await self.client.w3.eth.get_transaction_receipt(tx_hash)
 
-                status = receipts.get("status")
-                if status == 1:
-                    message = f'Transaction was successful: {self.client.explorer}tx/{tx_hash}'
-                    self.logger_msg(*self.client.acc_info, msg=message, type_msg='success')
-                    return True
-                elif status is None:
+                    status = receipts.get("status")
+                    if status == 1:
+                        message = f'Transaction was successful: {self.client.explorer}tx/{tx_hash}'
+                        self.logger_msg(*self.client.acc_info, msg=message, type_msg='success')
+                        return True
+                    elif status is None:
+                        self.logger_msg(
+                            *self.client.acc_info, msg=f'Still waiting $BERA from faucet', type_msg='warning')
+                        await asyncio.sleep(poll_latency)
+                    else:
+                        raise SoftwareException(f'Transaction failed: {self.client.explorer}tx/{tx_hash}')
+                except TransactionNotFound:
                     self.logger_msg(*self.client.acc_info, msg=f'Still waiting $BERA from faucet', type_msg='warning')
                     await asyncio.sleep(poll_latency)
-                else:
-                    raise SoftwareException(f'Transaction failed: {self.client.explorer}tx/{tx_hash}')
-            except TransactionNotFound:
-                self.logger_msg(*self.client.acc_info, msg=f'Still waiting $BERA from faucet', type_msg='warning')
-                await asyncio.sleep(poll_latency)
-            except Exception as error:
-                self.logger_msg(
-                    *self.client.acc_info, msg=f'RPC got autims response. Error: {error}', type_msg='warning')
-                await asyncio.sleep(poll_latency)
+                except Exception as error:
+                    self.logger_msg(
+                        *self.client.acc_info, msg=f'RPC got autims response. Error: {error}', type_msg='warning')
+                    await asyncio.sleep(poll_latency)

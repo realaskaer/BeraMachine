@@ -37,7 +37,7 @@ TOKENS_PER_CHAIN = {
 }
 
 HONEYJAR_CONTRACTS = {
-    'router'                 : "0x6553444CaA1d4FA329aa9872008ca70AE6131925",
+    'router'                   : "0x6553444CaA1d4FA329aa9872008ca70AE6131925",
     'bera_red'                 : "0xDc094eaC7CC01224E798F34543a8F9e9D2559479"
 }
 
