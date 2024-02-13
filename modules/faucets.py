@@ -124,3 +124,5 @@ class Faucet(Logger, RequestClient):
                     self.logger_msg(
                         *self.client.acc_info, msg=f'RPC got autims response. Error: {error}', type_msg='warning')
                     await asyncio.sleep(poll_latency)
+        else:
+            return True
