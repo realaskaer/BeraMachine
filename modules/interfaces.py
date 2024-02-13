@@ -69,15 +69,15 @@ class RequestClient(ABC):
 
         errors = None
         headers = (headers or {}) | {'User-Agent': get_user_agent()}
-        
-        async with self.client.session.request(
-                method=method, url=url, headers=headers, data=data, params=params, json=json
-        ) as response:
 
-            total_time = 0
-            timeout = 360
-            while True:
-                try:
+        total_time = 0
+        timeout = 360
+        while True:
+            try:
+                async with self.client.session.request(
+                        method=method, url=url, headers=headers, data=data, params=params, json=json
+                ) as response:
+
                     data = await response.json()
                     if response.status == 200:
                         if isinstance(data, dict):
@@ -96,13 +96,13 @@ class RequestClient(ABC):
 
                     raise SoftwareException(
                         f"Bad request to {self.__class__.__name__}({module_name}) API: {await response.text()}")
-                except aiohttp.client_exceptions.ServerDisconnectedError as error:
-                    total_time += 15
-                    await asyncio.sleep(15)
-                    if total_time > timeout:
-                        raise SoftwareException(error)
-                    continue
-                except SoftwareExceptionWithoutRetry as error:
-                    raise SoftwareExceptionWithoutRetry(error)
-                except Exception as error:
+            except aiohttp.client_exceptions.ServerDisconnectedError as error:
+                total_time += 15
+                await asyncio.sleep(15)
+                if total_time > timeout:
                     raise SoftwareException(error)
+                continue
+            except SoftwareExceptionWithoutRetry as error:
+                raise SoftwareExceptionWithoutRetry(error)
+            except Exception as error:
+                raise SoftwareException(error)
