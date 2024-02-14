@@ -340,8 +340,14 @@ class Galxe(Logger, RequestClient):
 
         if not response['data']['prepareParticipate']['loyaltyPointsTxResp']:
             self.logger_msg(*self.client.acc_info, msg=f"Already claimed points on Galxe")
-        else:
-            self.logger_msg(*self.client.acc_info, msg=f"Successfully claim 5 points on Galxe", type_msg='success')
+        elif response['data']['prepareParticipate']['disallowReason'] != "":
+            error = response['data']['prepareParticipate']['disallowReason']
+            raise SoftwareException(f"Can`t claim points on Galxe. Error: {error}")
+
+        elif int(response['data']['prepareParticipate']['loyaltyPointsTxResp']['TotalClaimedPoints']):
+            points = int(response['data']['prepareParticipate']['loyaltyPointsTxResp']['TotalClaimedPoints'])
+            self.logger_msg(
+                *self.client.acc_info, msg=f"Successfully claim {points} points on Galxe", type_msg='success')
 
     async def get_gcaptcha4_data(self):
         from modules.interfaces import get_user_agent
