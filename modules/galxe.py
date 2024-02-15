@@ -406,7 +406,7 @@ class Galxe(Logger, RequestClient):
                 "input": {
                     "campaignId": "GCTN3ttM4T",
                     "captcha": await self.get_captcha_data(),
-                    "credId": "367886459336302592",
+                    "credId": "380124126053949440",
                     "items": [
                         self.client.address
                     ],
