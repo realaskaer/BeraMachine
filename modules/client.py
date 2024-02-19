@@ -28,6 +28,9 @@ class Client(Logger):
         self.proxy_init = proxy
 
         self.session = ClientSession(connector=ProxyConnector.from_url(f'http://{proxy}', ssl=ssl.create_default_context(), verify_ssl=True))
+        self.session.headers.update({
+            'User-Agent': self.get_user_agent()
+        })
         self.request_kwargs = {"proxy": f"http://{proxy}"} if proxy else {}
         self.rpc = random.choice(BeraChainRPC.rpc)
         self.w3 = AsyncWeb3(AsyncHTTPProvider(self.rpc, request_kwargs=self.request_kwargs))
@@ -45,6 +48,12 @@ class Client(Logger):
     def round_amount(min_amount: float, max_amount: float) -> float:
         decimals = max(len(str(min_amount)) - 1, len(str(max_amount)) - 1)
         return round(random.uniform(min_amount, max_amount), decimals + 2)
+
+    @staticmethod
+    def get_user_agent():
+        random_version = f"{random.uniform(520, 540):.2f}"
+        return (f'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/{random_version}'
+                f' (KHTML, like Gecko) Chrome/121.0.0.0 Safari/{random_version} Edg/121.0.0.0')
 
     @staticmethod
     def get_normalize_error(error):

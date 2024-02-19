@@ -350,7 +350,6 @@ class Galxe(Logger, RequestClient):
                 *self.client.acc_info, msg=f"Successfully claim {points} points on Galxe", type_msg='success')
 
     async def get_gcaptcha4_data(self):
-        from modules.interfaces import get_user_agent
 
         url = 'https://gcaptcha4.geetest.com/load'
 
@@ -364,7 +363,6 @@ class Galxe(Logger, RequestClient):
             'callback': callback,
         }
 
-        self.client.session.headers.update({'User-Agent': get_user_agent()})
         async with self.client.session.request(method='GET', url=url, params=params) as response:
             return (json.loads((await response.text()).split(f"{callback}(")[1][:-1]))['data']
 

@@ -4,14 +4,7 @@ from loguru import logger
 from sys import stderr
 from datetime import datetime
 from abc import ABC
-from random import uniform
 from config import CHAIN_NAME
-
-
-def get_user_agent():
-    random_version = f"{uniform(520, 540):.2f}"
-    return (f'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/{random_version}'
-            f' (KHTML, like Gecko) Chrome/121.0.0.0 Safari/{random_version} Edg/121.0.0.0')
 
 
 class PriceImpactException(Exception):
@@ -68,7 +61,6 @@ class RequestClient(ABC):
                            data:str = None, json:dict = None, module_name:str = 'Request'):
 
         errors = None
-        headers = (headers or {}) | {'User-Agent': get_user_agent()}
 
         total_time = 0
         timeout = 360
@@ -77,7 +69,6 @@ class RequestClient(ABC):
                 async with self.client.session.request(
                         method=method, url=url, headers=headers, data=data, params=params, json=json
                 ) as response:
-
                     data = await response.json()
                     if response.status == 200:
                         if isinstance(data, dict):
