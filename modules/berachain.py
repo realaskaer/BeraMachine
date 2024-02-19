@@ -93,7 +93,7 @@ class BeraChain(Logger, RequestClient):
 
     @helper
     async def add_liquidity_bex(self):
-        amount = round(random.uniform(0.01, 0.03), 4)
+        amount = round(random.uniform(0.001, 0.003), 4)
         amount_in_wei = int(amount * 10 ** 18)
 
         self.logger_msg(*self.client.acc_info, msg=f'Add liquidity to BEX BERA/STGUSDC pool: {amount} BERA')
@@ -111,7 +111,7 @@ class BeraChain(Logger, RequestClient):
     @helper
     async def swap_honey(self):
 
-        amount = round(random.uniform(0.1, 0.5), 4)
+        amount = round(random.uniform(0.01, 0.05), 4)
         amount_in_wei = int(amount * 10 ** 18)
 
         self.logger_msg(*self.client.acc_info, msg=f'Swap on Honey: {amount} STGUSDC -> HONEY')
@@ -160,7 +160,7 @@ class BeraChain(Logger, RequestClient):
 
     @helper
     async def supply_honey_bend(self):
-        amount = round(random.uniform(0.1, 0.5), 4)
+        amount = round(random.uniform(0.01, 0.05), 4)
         amount_in_wei = int(amount * 10 ** 18)
 
         self.logger_msg(*self.client.acc_info, msg=f'Supply {amount} $HONEY on Bend Dashboard')

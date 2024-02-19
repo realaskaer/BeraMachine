@@ -16,7 +16,7 @@ class Custom(Logger, RequestClient):
 
         from_token_name = 'BERA'
         to_token_name = 'STGUSDC'
-        amount = round(random.uniform(0.01, 0.03), 4)
+        amount = round(random.uniform(0.001, 0.003), 4)
         amount_in_wei = int(amount * 10 ** 18)
 
         data = from_token_name, to_token_name, amount, amount_in_wei
@@ -32,7 +32,7 @@ class Custom(Logger, RequestClient):
 
         from_token_name = 'BERA'
         to_token_name = 'WBTC'
-        amount = round(random.uniform(0.01, 0.03), 4)
+        amount = round(random.uniform(0.001, 0.003), 4)
         amount_in_wei = int(amount * 10 ** 18)
 
         data = from_token_name, to_token_name, amount, amount_in_wei
@@ -48,7 +48,7 @@ class Custom(Logger, RequestClient):
 
         from_token_name = 'BERA'
         to_token_name = 'HONEY'
-        amount = round(random.uniform(0.01, 0.02), 4)
+        amount = round(random.uniform(0.001, 0.002), 4)
         amount_in_wei = int(amount * 10 ** 18)
 
         data = from_token_name, to_token_name, amount, amount_in_wei
@@ -64,7 +64,7 @@ class Custom(Logger, RequestClient):
 
         from_token_name = 'BERA'
         to_token_name = 'WETH'
-        amount = round(random.uniform(0.01, 0.02), 4)
+        amount = round(random.uniform(0.001, 0.002), 4)
         amount_in_wei = int(amount * 10 ** 18)
 
         data = from_token_name, to_token_name, amount, amount_in_wei
