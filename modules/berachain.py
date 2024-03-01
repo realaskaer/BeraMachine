@@ -1,10 +1,12 @@
 import random
 
+from faker import Faker
+
 from modules import RequestClient, Logger
 from modules.interfaces import SoftwareException
 from utils.tools import helper
 from config import BEX_ABI, TOKENS_PER_CHAIN, BEX_CONTRACTS, ZERO_ADDRESS, HONEY_CONTRACTS, HONEY_ABI, HONEYJAR_ABI, \
-    HONEYJAR_CONTRACTS, BEND_CONTRACTS, BEND_ABI
+    HONEYJAR_CONTRACTS, BEND_CONTRACTS, BEND_ABI, BERADOMAIN, BERADOMAIN_CONTRACTS, BERPS_CONTRACTS, BERPS_ABI
 
 
 class BeraChain(Logger, RequestClient):
@@ -20,6 +22,8 @@ class BeraChain(Logger, RequestClient):
         self.honeyjar_contract = self.client.get_contract(HONEYJAR_CONTRACTS['router'], HONEYJAR_ABI['router'])
         self.honeyjar_contract2 = self.client.get_contract(HONEYJAR_CONTRACTS['bera_red'], HONEYJAR_ABI['router'])
         self.bend_contract = self.client.get_contract(BEND_CONTRACTS['router'], BEND_ABI['router'])
+        self.berps_contract = self.client.get_contract(BERPS_CONTRACTS['router'], BERPS_ABI['router'])
+        self.domain_contract = self.client.get_contract(BERADOMAIN_CONTRACTS['router'], BERADOMAIN['router'])
 
     async def get_min_amount_out(self, from_token_address: str, to_token_address: str, amount_in_wei: int):
         min_amount_out = await self.bex_router_contract.functions.querySwap(
@@ -109,6 +113,27 @@ class BeraChain(Logger, RequestClient):
         return await self.client.send_transaction(transaction)
 
     @helper
+    async def add_liquidity_bex_mim(self):
+        amount = round(random.uniform(0.001, 0.003), 4)
+        amount_in_wei = int(amount * 10 ** 18)
+
+        self.logger_msg(*self.client.acc_info, msg=f'Add liquidity to BEX HONEY/MIM pool: {amount} HONEY')
+
+        honey_token_address = TOKENS_PER_CHAIN['BeraChain']['HONEY']
+
+        await self.client.check_for_approved(honey_token_address, BEX_CONTRACTS['router'], amount_in_wei)
+
+        tx_params = await self.client.prepare_transaction(value=amount_in_wei)
+        transaction = await self.bex_router_contract.functions.addLiquidity(
+            BEX_CONTRACTS['bera_usdc_pool'],
+            self.client.address,
+            [honey_token_address],
+            [amount_in_wei]
+        ).build_transaction(tx_params)
+
+        return await self.client.send_transaction(transaction)
+
+    @helper
     async def swap_honey(self):
 
         amount = round(random.uniform(0.01, 0.05), 4)
@@ -158,6 +183,49 @@ class BeraChain(Logger, RequestClient):
 
         return await self.client.send_transaction(transaction)
 
+    # @helper
+    # async def mint_valhala_nft(self):
+    #     url = 'https://mint.valhalla.land/site/character-mint-native-token'
+    #
+    #     payload = {
+    #         'address': self.client.address
+    #     }
+    #
+    #     headers = {
+    #         "accept": "application/json, text/javascript, */*; q=0.01",
+    #         "accept-language": "ru,en;q=0.9,en-GB;q=0.8,en-US;q=0.7",
+    #         "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+    #         "sec-ch-ua": "\"Chromium\";v=\"122\", \"Not(A:Brand\";v=\"24\", \"Microsoft Edge\";v=\"122\"",
+    #         "sec-ch-ua-mobile": "?0",
+    #         "sec-ch-ua-platform": "\"Windows\"",
+    #         "sec-fetch-dest": "empty",
+    #         "sec-fetch-mode": "cors",
+    #         'Cookie': 'advanced-frontend=hv3db91no3nmojqtlhrpdm34ia; _csrf=8efd9a44b9e5c088945e9fe00c244282a1e4fd3d85d5605260fb2e659e111b99a%3A2%3A%7Bi%3A0%3Bs%3A5%3A%22_csrf%22%3Bi%3A1%3Bs%3A32%3A%22Wt66_45B74auzhKaY5rIcSTrapxxNqpB%22%3B%7D',
+    #         "sec-fetch-site": "same-origin",
+    #         "x-csrf-token": "pWcVT31UVrSdgD-2CRMbwBQ5lr8jidWqDLs4HPQjVe_yEyN5ImBj9qq0XsNze1ChTQzk9kDagdhty0BkulIlrQ==",
+    #         "x-kl-saas-ajax-request": "Ajax_Request",
+    #         "x-requested-with": "XMLHttpRequest",
+    #         "referrer": "https://mint.valhalla.land/",
+    #         "referrerPolicy": "strict-origin-when-cross-origin",
+    #     }
+    #
+    #     response = await self.make_request(method="POST", url=url, headers=headers, data=f'wallet={self.client.address}')
+    #
+    #     print(response)
+    #     return
+    #
+    #     self.logger_msg(*self.client.acc_info, msg=f'Mint BERA RED ENVELOPE. Price : 1.78 HONEY')
+    #
+    #     from_token_address = TOKENS_PER_CHAIN[self.network]['HONEY']
+    #
+    #     await self.client.check_for_approved(from_token_address, HONEYJAR_CONTRACTS['bera_red'], int(1.776 * 10 ** 18))
+    #
+    #     transaction = await self.honeyjar_contract2.functions.buy().build_transaction(
+    #         await self.client.prepare_transaction()
+    #     )
+    #
+    #     return await self.client.send_transaction(transaction)
+
     @helper
     async def supply_honey_bend(self):
         amount = round(random.uniform(0.01, 0.05), 4)
@@ -174,6 +242,24 @@ class BeraChain(Logger, RequestClient):
             amount_in_wei,
             self.client.address,
             0
+        ).build_transaction(await self.client.prepare_transaction())
+
+        return await self.client.send_transaction(transaction)
+
+    @helper
+    async def deposit_honey_berps_vault(self):
+        amount = round(random.uniform(0.01, 0.05), 4)
+        amount_in_wei = int(amount * 10 ** 18)
+
+        self.logger_msg(*self.client.acc_info, msg=f'Staking {amount} $HONEY on Berps Vault')
+
+        from_token_address = TOKENS_PER_CHAIN[self.network]['HONEY']
+
+        await self.client.check_for_approved(from_token_address, BERPS_CONTRACTS['router'], amount_in_wei)
+
+        transaction = await self.berps_contract.functions.deposit(
+            amount_in_wei,
+            self.client.address,
         ).build_transaction(await self.client.prepare_transaction())
 
         return await self.client.send_transaction(transaction)
@@ -200,6 +286,26 @@ class BeraChain(Logger, RequestClient):
         self.logger_msg(*self.client.acc_info, msg=f'Supply {amount} $BTC on Bend Dashboard')
 
         from_token_address = TOKENS_PER_CHAIN[self.network]['WBTC']
+
+        await self.client.check_for_approved(from_token_address, BEND_CONTRACTS['router'], amount_in_wei)
+
+        transaction = await self.bend_contract.functions.supply(
+            from_token_address,
+            amount_in_wei,
+            self.client.address,
+            0
+        ).build_transaction(await self.client.prepare_transaction())
+
+        return await self.client.send_transaction(transaction)
+
+    @helper
+    async def borrow_honey_bend(self):
+        amount = round(random.uniform(0.01, 0.05), 4)
+        amount_in_wei = int(amount * 10 ** 18)
+
+        self.logger_msg(*self.client.acc_info, msg=f'Supply {amount} $HONEY on Bend Dashboard')
+
+        from_token_address = TOKENS_PER_CHAIN[self.network]['HONEY']
 
         await self.client.check_for_approved(from_token_address, BEND_CONTRACTS['router'], amount_in_wei)
 
@@ -260,4 +366,20 @@ class BeraChain(Logger, RequestClient):
 
         return await self.client.send_transaction(transaction)
 
+    @helper
+    async def mint_domain(self):
+        domain = f'{Faker().word()}{random.randint(100, 999)}'
 
+        self.logger_msg(*self.client.acc_info, msg=f'Mint domain on BeraNames')
+
+        self.logger_msg(*self.client.acc_info, msg=f'Generated domain: {domain}.🐻⛓️')
+
+        transaction = await self.domain_contract.functions.mintNative(
+            [str(i) for i in domain],
+            1,
+            self.client.address,
+            'https://beranames.com/api/metadata/69',
+            self.client.address,
+        ).build_transaction(await self.client.prepare_transaction(value=360126764621146))
+
+        return await self.client.send_transaction(transaction)

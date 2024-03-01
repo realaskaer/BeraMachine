@@ -69,8 +69,8 @@ class RequestClient(ABC):
                 async with self.client.session.request(
                         method=method, url=url, headers=headers, data=data, params=params, json=json
                 ) as response:
-                    data = await response.json()
-                    if response.status == 200:
+                    if response.status in [200, 201]:
+                        data = await response.json()
                         if isinstance(data, dict):
                             errors = data.get('errors')
                         elif isinstance(data, list) and isinstance(data[0], dict):

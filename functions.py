@@ -42,14 +42,24 @@ async def swap_stgusdc_bex(account_number, private_key, proxy, *_, **kwargs):
     return await worker.swap_stgusdc_bex(**kwargs)
 
 
-async def add_liqiudity_bex(account_number, private_key, proxy, *_, **kwargs):
+async def add_liqiudity_bex_bera_usdc(account_number, private_key, proxy, *_, **kwargs):
     worker = BeraChain(get_client(account_number, private_key, proxy))
     return await worker.add_liquidity_bex(**kwargs)
+
+
+async def add_liqiudity_bex_honey_min(account_number, private_key, proxy, *_, **kwargs):
+    worker = BeraChain(get_client(account_number, private_key, proxy))
+    return await worker.add_liquidity_bex_mim(**kwargs)
 
 
 async def supply_honey_bend(account_number, private_key, proxy, *_, **kwargs):
     worker = BeraChain(get_client(account_number, private_key, proxy))
     return await worker.supply_honey_bend(**kwargs)
+
+
+async def deposit_honey_berps(account_number, private_key, proxy, *_, **kwargs):
+    worker = BeraChain(get_client(account_number, private_key, proxy))
+    return await worker.deposit_honey_berps_vault(**kwargs)
 
 
 async def supply_btc_bend(account_number, private_key, proxy, *_, **kwargs):
@@ -90,6 +100,16 @@ async def mint_booga_ticket(account_number, private_key, proxy, *_, **kwargs):
 async def mint_bera_red(account_number, private_key, proxy, *_, **kwargs):
     worker = BeraChain(get_client(account_number, private_key, proxy))
     return await worker.mint_bera_red(**kwargs)
+
+
+async def mint_valhala_nft(account_number, private_key, proxy, *_, **kwargs):
+    worker = BeraChain(get_client(account_number, private_key, proxy))
+    return await worker.mint_valhala_nft(**kwargs)
+
+
+async def mint_domain(account_number, private_key, proxy, *_, **kwargs):
+    worker = BeraChain(get_client(account_number, private_key, proxy))
+    return await worker.mint_domain(**kwargs)
 
 
 async def claim_galxe_points(account_number, private_key, proxy, email_address, email_password, **kwargs):

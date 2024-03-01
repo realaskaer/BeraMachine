@@ -52,22 +52,25 @@ TG_ID = ""  # https://t.me/getmyid_bot
 """
 --------------------------------------------CLASSIC-ROUTES CONTROL------------------------------------------------------
 
-    mint_berachain_tokens  # минт $BERA на BeraChain Faucet (https://artio.faucet.berachain.com/)
-    swap_btc_bex           # свап на BEX ($BERA -> $BTC)
-    swap_honey_bex         # свап на BEX ($BERA -> $HONEY)
-    swap_stgusdc_bex       # свап на BEX ($BERA -> $STGUSDC)
-    swap_eth_bex           # свап на BEX ($BERA -> $ETH)
-    supply_honey_bend      # добавление $HONEY ликвидности на Bend           
-    supply_btc_bend        # добавление $BTC ликвидности на Bend      
-    supply_eth_bend        # добавление $ETH ликвидности на Bend      
-    withdraw_honey_bend    # вывод $HONEY ликвидности на Bend         
-    withdraw_btc_bend      # вывод $BTC ликвидности на Bend           
-    withdraw_eth_bend      # вывод $ETH ликвидности на Bend           
-    add_liqiudity_bex      # добавление ликвидности на BEX
-    mint_honey             # минт $HONEY за $STGUSDC
-    mint_booga_ticket      # минт OOGA BOOGA Ticket за 4.2 $HONEY
-    mint_bera_red          # минт  Mint BERA RED ENVELOPE за 1.8 $HONEY
-    claim_galxe_points     # выполнение дейлика на Galxe (5 поинтов за визит Faucet)
+    mint_berachain_tokens           # минт $BERA на BeraChain Faucet (https://artio.faucet.berachain.com/)
+    swap_btc_bex                    # свап на BEX ($BERA -> $BTC)
+    swap_honey_bex                  # свап на BEX ($BERA -> $HONEY)
+    swap_stgusdc_bex                # свап на BEX ($BERA -> $STGUSDC)
+    swap_eth_bex                    # свап на BEX ($BERA -> $ETH)
+    deposit_honey_berps             # добавление $HONEY ликвидности на Berps           
+    supply_honey_bend               # добавление $HONEY ликвидности на Bend           
+    supply_btc_bend                 # добавление $BTC ликвидности на Bend      
+    supply_eth_bend                 # добавление $ETH ликвидности на Bend      
+    withdraw_honey_bend             # вывод $HONEY ликвидности на Bend         
+    withdraw_btc_bend               # вывод $BTC ликвидности на Bend           
+    withdraw_eth_bend               # вывод $ETH ликвидности на Bend           
+    add_liqiudity_bex_honey_mim     # добавление $HONEY/MIM ликвидности на BEX 
+    add_liqiudity_bex_bera_usdc     # добавление $BERA/USDC ликвидности на BEX
+    mint_honey                      # минт $HONEY за $STGUSDC
+    mint_domain                     # минт домена на https://www.beranames.com/
+    mint_booga_ticket               # минт OOGA BOOGA Ticket за 4.2 $HONEY
+    mint_bera_red                   # минт  Mint BERA RED ENVELOPE за 1.8 $HONEY
+    claim_galxe_points              # выполнение дейлика на Galxe (5 поинтов за визит Faucet)
 
     Выберите необходимые модули для взаимодействия
     Вы можете создать любой маршрут, софт отработает строго по нему. Для каждого списка будет выбран один модуль в
