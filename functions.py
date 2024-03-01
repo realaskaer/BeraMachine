@@ -47,7 +47,7 @@ async def add_liqiudity_bex_bera_usdc(account_number, private_key, proxy, *_, **
     return await worker.add_liquidity_bex(**kwargs)
 
 
-async def add_liqiudity_bex_honey_min(account_number, private_key, proxy, *_, **kwargs):
+async def add_liqiudity_bex_honey_mim(account_number, private_key, proxy, *_, **kwargs):
     worker = BeraChain(get_client(account_number, private_key, proxy))
     return await worker.add_liquidity_bex_mim(**kwargs)
 

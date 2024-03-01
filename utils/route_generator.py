@@ -16,7 +16,7 @@ AVAILABLE_MODULES_INFO = {
     swap_stgusdc_bex                    : (swap_stgusdc_bex, 2, '$BERA -> $STGUSDC Bex Swap', 0, [0]),
     mint_domain                         : (mint_domain, 2, 'Mint Domain on Berachain', 0, [0]),
     add_liqiudity_bex_bera_usdc         : (add_liqiudity_bex_bera_usdc, 3, 'Add liquidity BERA/STGUSDC on Bex', 0, [0]),
-    add_liqiudity_bex_honey_min         : (add_liqiudity_bex_honey_min, 3, 'Add liquidity HONEY/MIM on Bex', 0, [0]),
+    add_liqiudity_bex_honey_mim         : (add_liqiudity_bex_honey_mim, 3, 'Add liquidity HONEY/MIM on Bex', 0, [0]),
     deposit_honey_berps                 : (deposit_honey_berps, 3, 'Deposit $HONEY on Berps', 0, [0]),
     supply_honey_bend                   : (supply_honey_bend, 3, 'Supply $HONEY on Bend', 0, [0]),
     supply_btc_bend                     : (supply_btc_bend, 3, 'Supply $BTC on Bend', 0, [0]),
