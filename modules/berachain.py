@@ -125,7 +125,7 @@ class BeraChain(Logger, RequestClient):
 
         tx_params = await self.client.prepare_transaction(value=amount_in_wei)
         transaction = await self.bex_router_contract.functions.addLiquidity(
-            BEX_CONTRACTS['bera_usdc_pool'],
+            BEX_CONTRACTS['bera_mim_pool'],
             self.client.address,
             [honey_token_address],
             [amount_in_wei]
