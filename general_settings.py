@@ -89,7 +89,7 @@ CLASSIC_ROUTES_MODULES_USING = [
     ['mint_berachain_tokens'],
     ['swap_stgusdc_bex'],
     ['swap_eth_bex', 'swap_btc_bex'],
-    ['add_liqiudity_bex'],
+    ['add_liqiudity_bex_bera_usdc'],
     ['mint_honey'],
     ['mint_booga_ticket', None],
     ['supply_honey_bend', 'supply_btc_bend', 'supply_eth_bend'],
