@@ -145,7 +145,7 @@ class Runner(Logger):
     @staticmethod
     def get_email_for_account(account_name):
         try:
-            account_number = ACCOUNT_NAMES.index(account_name) + 1
+            account_number = ACCOUNT_NAMES.index(account_name)
             num_emails = len(EMAIL_ADDRESSES)
             return EMAIL_ADDRESSES[account_number % num_emails], EMAIL_PASSWORDS[account_number % num_emails]
         except:
