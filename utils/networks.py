@@ -24,7 +24,7 @@ class Network:
 BeraChainRPC = Network(
     name='BeraChain',
     rpc=[
-        'https://rpc.ankr.com/berachain_testnet'
+        'https://artio.rpc.berachain.com/'
     ],
     chain_id=80085,
     eip1559_support=True,
