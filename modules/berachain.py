@@ -406,7 +406,7 @@ class BeraChain(Logger, RequestClient):
 
         bgt_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.network]['BGT'])
 
-        amount_in_wei = await bgt_contract.functions.balanceOf(self.client.address).call
+        amount_in_wei = await bgt_contract.functions.balanceOf(self.client.address).call()
 
         delegate_list = [
             "0x032238ba76Aadaa7C891967c4491fC18f81C6189",
