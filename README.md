@@ -23,9 +23,13 @@
     1.  Faucet       (получение токенов с крана)                                       
     2.  BEX          (свапы $BERA в $STGUSDC, $BTC, $ETH, ликвидность в пулл $BERA/$STGUSDC)
     3.  Bend         (добавление и вывод $HONEY, $BTC, $ETH ликвидности)
-    4.  Honey        (минт $HONEY за $STGUSDC)    
-    5.  Honey        (минт OOGA BOOGA TICKET)    
-    6.  Galxe        (выполнение дейлика на 5 поинтов за посещение Faucet)
+    4.  Berps        (добавление и вывод $HONEY ликвидности)
+    5.  Station      (делегирование $BGT и голосование)
+    6.  Honey        (минт $HONEY за $STGUSDC)    
+    7.  BeraNames    (минт домена)    
+    8.  Merkly       (деплой контракта)    
+    9.  BOOGA        (минт OOGA BOOGA TICKET)    
+    10. Galxe        (выполнение кампании на 55 поинтов и дейлика на 5 поинтов за посещение Faucet)
 
 ## ♾️Основные функции
 
