@@ -478,7 +478,9 @@ class Galxe(Logger, RequestClient):
         while True:
             rambler_client = aioimaplib.IMAP4_SSL(IMAP_CONFIG.get(domain_name, f'imap.{domain_name}'))
 
-            #await rambler_client.wait_hello_from_server()
+            if 'rambler' in domain_name:
+                await rambler_client.wait_hello_from_server()
+                
             await rambler_client.login(self.client.email_address, self.client.email_password)
 
             try:
