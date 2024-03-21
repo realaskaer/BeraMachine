@@ -1,6 +1,6 @@
 """
 ------------------------------------------------GENERAL SETTINGS--------------------------------------------------------
-    WALLETS_TO_WORK = 0 | Софт будет брать кошельки из таблице по правилам, описаным снизу
+    WALLETS_TO_WORK = 0 | Софт будет брать кошельки из таблице по правилам, описанным снизу
     0       = все кошельки подряд
     3       = только кошелек №3
     4, 20   = кошелек №4 и №20
@@ -14,28 +14,30 @@
 
 """
 SOFTWARE_MODE = 1               # 0 - последовательный запуск / 1 - параллельный запуск
-ACCOUNTS_IN_STREAM = 10          # Только для SOFTWARE_MODE = 1 (параллельный запуск)
+ACCOUNTS_IN_STREAM = 10         # Количество аккаунтов в потоке при SOFTWARE_MODE = 1
 WALLETS_TO_WORK = 0             # 0 / 3 / 3, 20 / [3, 20]
 BREAK_ROUTE = False             # Прекращает выполнение маршрута, если произойдет ошибка
 SHUFFLE_WALLETS = False         # Перемешивает кошельки перед запуском
-SAVE_PROGRESS = False           # True или False | Включает сохранение прогресса аккаунта для Classic-routes
-TELEGRAM_NOTIFICATIONS = False  # True или False | Включает уведомления в Telegram
+SAVE_PROGRESS = False           # Включает сохранение прогресса аккаунта для Classic-routes
+TELEGRAM_NOTIFICATIONS = False  # Включает уведомления в Telegram
 WAIT_FAUCET = False             # Ожидает получение $BERA из Faucet
 
 '------------------------------------------------SLEEP CONTROL---------------------------------------------------------'
-SLEEP_MODE = False               # True или False | Включает сон после каждого модуля и аккаунта
-SLEEP_TIME = (10, 15)           # (минимум, максимум) секунд | Время сна между модулями.
-SLEEP_TIME_STREAM = (5, 10)    # (минимум, максимум) секунд | Время сна между аккаунтами.
+SLEEP_MODE = False               # Включает сон после каждого модуля и аккаунта
+SLEEP_TIME_MODULES = (30, 60)    # (минимум, максимум) секунд | Время сна между модулями.
+SLEEP_TIME_ACCOUNTS = (60, 120)  # (минимум, максимум) секунд | Время сна между аккаунтами.
 
 '------------------------------------------------RETRY CONTROL---------------------------------------------------------'
-MAXIMUM_RETRY = 3               # Количество повторений при ошибках
-SLEEP_TIME_RETRY = (5, 10)      # (минимум, максимум) секунд | Время сна после очередного повторения
+MAXIMUM_RETRY = 20               # Количество повторений при ошибках
+SLEEP_TIME_RETRY = (5, 10)       # (минимум, максимум) секунд | Время сна после очередного повторения
 
 '------------------------------------------------PROXY CONTROL---------------------------------------------------------'
-MOBILE_PROXY = False             # True или False | Включает использование мобильных прокси.
-MOBILE_PROXY_URL_CHANGER = ['',
-                            '',
-                            '']  # ['link1', 'link2'..] | Ссылки для смены IP
+MOBILE_PROXY = False             # Включает использование мобильных прокси.
+MOBILE_PROXY_URL_CHANGER = [
+    '',
+    '',
+    ''
+]  # ['link1', 'link2'..] | Ссылки для смены IP. Софт пройдется по всем ссылкам, можно указать несколько прокси в Excel
 
 '------------------------------------------------SECURE DATA-----------------------------------------------------------'
 # https://2captcha.com/enterpage
@@ -70,7 +72,11 @@ TG_ID = ""  # https://t.me/getmyid_bot
     mint_domain                     # минт домена на https://www.beranames.com/
     mint_booga_ticket               # минт OOGA BOOGA Ticket за 4.2 $HONEY
     mint_bera_red                   # минт  Mint BERA RED ENVELOPE за 1.8 $HONEY
+    claim_bgt_on_berps              # клейм $BGT на Berps Dashboard
+    delegate_bgt_on_station         # делегирование $BGT на BeraChain Station
+    vote_bgt_on_station             # голосование на BeraChain Station
     claim_galxe_points              # выполнение дейлика на Galxe (5 поинтов за визит Faucet)
+    claim_galxe_campaign_points     # выполнение кампании на Galxe (55 поинтов, без Twiiter и Discord )
 
     Выберите необходимые модули для взаимодействия
     Вы можете создать любой маршрут, софт отработает строго по нему. Для каждого списка будет выбран один модуль в
@@ -93,5 +99,9 @@ CLASSIC_ROUTES_MODULES_USING = [
     ['mint_honey'],
     ['mint_booga_ticket', None],
     ['supply_honey_bend', 'supply_btc_bend', 'supply_eth_bend'],
-    ['claim_galxe_points']
+    ['claim_galxe_points'],
+    ['claim_bgt_on_berps'],
+    ['delegate_bgt_on_station'],
+    ['vote_bgt_on_station'],
+    ['claim_galxe_campaign_points'],
 ]

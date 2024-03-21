@@ -1,3 +1,7 @@
 
 *.xlsx
 general_settings.py
+*.iml
+*.xml
+*.pyc
+*.log

@@ -141,7 +141,7 @@ class Client(Logger):
                 max_fee_per_gas = base_fee + max_priority_fee_per_gas
 
                 tx_params['maxPriorityFeePerGas'] = max_priority_fee_per_gas
-                tx_params['maxFeePerGas'] = max_fee_per_gas
+                tx_params['maxFeePerGas'] = int(max_fee_per_gas * 1.05)
                 tx_params['type'] = '0x2'
             else:
                 tx_params['gasPrice'] = await self.w3.eth.gas_price
@@ -223,9 +223,7 @@ class Client(Logger):
                     elif status is None:
                         await asyncio.sleep(poll_latency)
                     else:
-                        self.logger_msg(*self.acc_info, msg=f'Transaction failed: {self.explorer}tx/{tx_hash.hex()}',
-                                        type_msg='error')
-                        return False
+                        return SoftwareException(f'Transaction failed: {self.explorer}tx/{tx_hash.hex()}')
                 except TransactionNotFound:
                     if total_time > timeout:
                         if self.network.name in ['BNB Chain', 'Moonbeam']:

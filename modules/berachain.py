@@ -6,7 +6,8 @@ from modules import RequestClient, Logger
 from modules.interfaces import SoftwareException
 from utils.tools import helper
 from config import BEX_ABI, TOKENS_PER_CHAIN, BEX_CONTRACTS, ZERO_ADDRESS, HONEY_CONTRACTS, HONEY_ABI, HONEYJAR_ABI, \
-    HONEYJAR_CONTRACTS, BEND_CONTRACTS, BEND_ABI, BERADOMAIN, BERADOMAIN_CONTRACTS, BERPS_CONTRACTS, BERPS_ABI
+    HONEYJAR_CONTRACTS, BEND_CONTRACTS, BEND_ABI, BERADOMAIN_ABI, BERADOMAIN_CONTRACTS, BERPS_CONTRACTS, BERPS_ABI, \
+    STATION_CONTRACTS, STATION_ABI
 
 
 class BeraChain(Logger, RequestClient):
@@ -23,7 +24,9 @@ class BeraChain(Logger, RequestClient):
         self.honeyjar_contract2 = self.client.get_contract(HONEYJAR_CONTRACTS['bera_red'], HONEYJAR_ABI['router'])
         self.bend_contract = self.client.get_contract(BEND_CONTRACTS['router'], BEND_ABI['router'])
         self.berps_contract = self.client.get_contract(BERPS_CONTRACTS['router'], BERPS_ABI['router'])
-        self.domain_contract = self.client.get_contract(BERADOMAIN_CONTRACTS['router'], BERADOMAIN['router'])
+        self.domain_contract = self.client.get_contract(BERADOMAIN_CONTRACTS['router'], BERADOMAIN_ABI['router'])
+        self.station_contract = self.client.get_contract(STATION_CONTRACTS['delegate'], STATION_ABI['delegate'])
+        self.station_contract2 = self.client.get_contract(STATION_CONTRACTS['vote'], STATION_ABI['vote'])
 
     async def get_min_amount_out(self, from_token_address: str, to_token_address: str, amount_in_wei: int):
         min_amount_out = await self.bex_router_contract.functions.querySwap(
@@ -265,6 +268,19 @@ class BeraChain(Logger, RequestClient):
         return await self.client.send_transaction(transaction)
 
     @helper
+    async def claim_bgt_on_berps(self):
+        amount_in_wei = int(await self.berps_contract.functions.pendingBGT(self.client.address).call() * 0.99)
+
+        self.logger_msg(*self.client.acc_info, msg=f'Claim {amount_in_wei / 10 ** 18:.6f} $BGT on Berps Vault')
+
+        transaction = await self.berps_contract.functions.claimBGT(
+            amount_in_wei,
+            self.client.address,
+        ).build_transaction(await self.client.prepare_transaction())
+
+        return await self.client.send_transaction(transaction)
+
+    @helper
     async def withdraw_honey_bend(self):
         self.logger_msg(*self.client.acc_info, msg=f'Withdraw $HONEY from Bend Dashboard')
 
@@ -383,3 +399,48 @@ class BeraChain(Logger, RequestClient):
         ).build_transaction(await self.client.prepare_transaction(value=360126764621146))
 
         return await self.client.send_transaction(transaction)
+
+    @helper
+    async def delegate_bgt_on_station(self):
+        self.logger_msg(*self.client.acc_info, msg=f'Delegate $BGT BeraChain Station')
+
+        bgt_contract = self.client.get_contract(TOKENS_PER_CHAIN[self.network]['BGT'])
+
+        amount_in_wei = await bgt_contract.functions.balanceOf(self.client.address).call
+
+        delegate_list = [
+            "0x032238ba76Aadaa7C891967c4491fC18f81C6189",
+            "0x0331A9665E8f47b4C289eb665f8466f68e9ae9a5",
+            "0x034855669054BEbe87374317F1c848237a591046",
+            "0x041e8463219316724eFBBE827409ABD1a57D9F6e",
+            "0x0484Cc87F35088af7a0bCe3b155FFE2e91A9baa8",
+            "0x069da50b99408c8c42d006AfbF3C7F600384edEA",
+            "0x06A7D20154c336be6103B2D588e6c6ECeB571186",
+            "0x0cf633F3a7478EAAbd73B7287B997D609B12A11a",
+            "0x1C6Da144428b409aCB125ad0c26291DA6D484411",
+            "0x07c74a2fEDCfC793FbD3adc5C9f5f864Af297b96",
+            "0x26de86e871eab1E471AEd9fe343D4d75800EB587",
+            "0x1Cc335D9c67a71C777282fdb28b0a2d5eBf42AF4",
+            "0x46d2305eaFd69E9323d13328f5915C1fcE287f2F",
+            "0x75d57E65d4330772293De0D5C2dBcA8f16F1A74F",
+            "0x6F259Fc8B8eFCED1971824F3723e8798936Fef76",
+        ]
+
+        transcation = await self.station_contract.functions.delegate(
+            random.choice(delegate_list),
+            amount_in_wei
+        ).build_transaction(await self.client.prepare_transaction())
+
+        return await self.client.send_transaction(transcation)
+
+    @helper
+    async def vote_bgt_on_station(self):
+        self.logger_msg(*self.client.acc_info, msg=f'Vote on BeraChain Station')
+
+        transcation = await self.station_contract2.functions.vote(
+            random.randint(70, 93),
+            1,
+            ''
+        ).build_transaction(await self.client.prepare_transaction())
+
+        return await self.client.send_transaction(transcation)

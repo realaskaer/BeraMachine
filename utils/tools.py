@@ -9,12 +9,14 @@ import msoffcrypto
 import pandas as pd
 
 from getpass import getpass
+
+from aiohttp import ClientProxyConnectionError, ClientHttpProxyError, ClientResponseError
 from termcolor import cprint
-from web3.exceptions import TimeExhausted
+from web3.exceptions import TimeExhausted, ContractLogicError
 from msoffcrypto.exceptions import DecryptionError, InvalidKeyError
 
 from general_settings import (
-    SLEEP_TIME,
+    SLEEP_TIME_MODULES,
     SLEEP_TIME_RETRY,
     MAXIMUM_RETRY,
     EXCEL_PASSWORD,
@@ -22,7 +24,7 @@ from general_settings import (
 )
 
 
-async def sleep(self, min_time=SLEEP_TIME[0], max_time=SLEEP_TIME[1]):
+async def sleep(self, min_time=SLEEP_TIME_MODULES[0], max_time=SLEEP_TIME_MODULES[1]):
     duration = random.randint(min_time, max_time)
     print()
     self.logger_msg(*self.client.acc_info, msg=f"💤 Sleeping for {duration} seconds")
@@ -128,59 +130,81 @@ def helper(func):
     @functools.wraps(func)
     async def wrapper(self, *args, **kwargs):
         from modules.interfaces import (
-            PriceImpactException,BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry
+            PriceImpactException, BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
         )
 
         attempts = 0
         stop_flag = False
+        infinity_flag = False
+        no_sleep_flag = False
         try:
-            while attempts <= MAXIMUM_RETRY:
+            while attempts <= MAXIMUM_RETRY and not infinity_flag:
                 try:
                     return await func(self, *args, **kwargs)
-                except (PriceImpactException, BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
-                        asyncio.exceptions.TimeoutError, TimeExhausted, ValueError) as err:
+                except (
+                        PriceImpactException, BlockchainException, SoftwareException, SoftwareExceptionWithoutRetry,
+                        ValueError, ContractLogicError, ClientProxyConnectionError,
+                        TimeoutError, ClientHttpProxyError, ClientResponseError, KeyError
+                ) as err:
                     error = err
                     attempts += 1
 
                     msg = f'{error} | Try[{attempts}/{MAXIMUM_RETRY + 1}]'
-                    if isinstance(error, asyncio.exceptions.TimeoutError):
+
+                    if isinstance(error, KeyError):
+                        stop_flag = True
+                        msg = f"Setting '{error}' for this module is not exist in software!"
+
+                    elif 'rate limit' in str(error) or '429' in str(error):
+                        msg = f'Rate limit exceeded. Will try again in 1 min...'
+                        await asyncio.sleep(60)
+                        no_sleep_flag = True
+
+                    elif isinstance(error, (
+                            ClientProxyConnectionError, TimeoutError, ClientHttpProxyError, ClientResponseError
+                    )):
+                        self.logger_msg(
+                            *self.client.acc_info,
+                            msg=f"Connection to RPC is not stable. Will try again in 1 min...",
+                            type_msg='warning'
+                        )
+                        await asyncio.sleep(60)
+                        attempts -= 1
+                        no_sleep_flag = True
+
+                    elif isinstance(error, ContractLogicError):
+                        msg = f"Execution reverted from contract"
+
+                    elif isinstance(error, asyncio.exceptions.TimeoutError):
                         error = 'Connection to RPC is not stable'
-                        #await self.client.change_rpc()
+                        await self.client.change_rpc()
                         msg = f'{error} | Try[{attempts}/{MAXIMUM_RETRY + 1}]'
 
-                    elif isinstance(error, SoftwareExceptionWithoutRetry):
-                        stop_flag = True
-                        msg = f'{error}'
-
-                    elif isinstance(error, (BlockchainException)):
-
-                        if any([i in str(error) for i in ['insufficient funds', 'gas required']]):
-                            stop_flag = True
-                            network_name = self.client.network.name
-                            msg = f'Insufficient funds on {network_name}, software will stop this action\n'
-                        else:
-
+                    elif isinstance(error, BlockchainException):
+                        if 'insufficient funds' not in str(error):
                             self.logger_msg(
                                 self.client.account_name,
                                 None, msg=f'Maybe problem with node: {self.client.rpc}', type_msg='warning')
-                            #await self.client.change_rpc()
+                            await self.client.change_rpc()
 
                     self.logger_msg(self.client.account_name, None, msg=msg, type_msg='error')
 
                     if stop_flag:
                         break
 
-                    if attempts > MAXIMUM_RETRY:
-                        self.logger_msg(self.client.account_name,
-                                        None, msg=f"Tries are over, software will stop module\n", type_msg='error')
+                    if attempts > MAXIMUM_RETRY and not infinity_flag:
+                        self.logger_msg(
+                            self.client.account_name, None,
+                            msg=f"Tries are over, software will stop module\n", type_msg='error'
+                        )
                     else:
-                        await sleep(self, *SLEEP_TIME_RETRY)
+                        if not no_sleep_flag:
+                            await sleep(self, *SLEEP_TIME_RETRY)
 
                 except Exception as error:
                     msg = f'Unknown Error. Description: {error}'
                     self.logger_msg(self.client.account_name, None, msg=msg, type_msg='error')
                     traceback.print_exc()
-                    break
         finally:
             await self.client.session.close()
         return False

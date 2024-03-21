@@ -62,6 +62,21 @@ async def deposit_honey_berps(account_number, private_key, proxy, *_, **kwargs):
     return await worker.deposit_honey_berps_vault(**kwargs)
 
 
+async def claim_bgt_on_berps(account_number, private_key, proxy, *_, **kwargs):
+    worker = BeraChain(get_client(account_number, private_key, proxy))
+    return await worker.claim_bgt_on_berps(**kwargs)
+
+
+async def delegate_bgt_on_station(account_number, private_key, proxy, *_, **kwargs):
+    worker = BeraChain(get_client(account_number, private_key, proxy))
+    return await worker.delegate_bgt_on_station(**kwargs)
+
+
+async def vote_bgt_on_station(account_number, private_key, proxy, *_, **kwargs):
+    worker = BeraChain(get_client(account_number, private_key, proxy))
+    return await worker.vote_bgt_on_station(**kwargs)
+
+
 async def supply_btc_bend(account_number, private_key, proxy, *_, **kwargs):
     worker = BeraChain(get_client(account_number, private_key, proxy))
     return await worker.supply_btc_bend(**kwargs)
@@ -115,3 +130,8 @@ async def mint_domain(account_number, private_key, proxy, *_, **kwargs):
 async def claim_galxe_points(account_number, private_key, proxy, email_address, email_password, **kwargs):
     worker = Galxe(get_client(account_number, private_key, proxy, email_address, email_password))
     return await worker.claim_galxe_points_berachain_faucet(**kwargs)
+
+
+async def claim_galxe_campaign_points(account_number, private_key, proxy, email_address, email_password, **kwargs):
+    worker = Galxe(get_client(account_number, private_key, proxy, email_address, email_password))
+    return await worker.claim_bera_campaign_points()

@@ -18,6 +18,9 @@ AVAILABLE_MODULES_INFO = {
     add_liqiudity_bex_bera_usdc         : (add_liqiudity_bex_bera_usdc, 3, 'Add liquidity BERA/STGUSDC on Bex', 0, [0]),
     add_liqiudity_bex_honey_mim         : (add_liqiudity_bex_honey_mim, 3, 'Add liquidity HONEY/MIM on Bex', 0, [0]),
     deposit_honey_berps                 : (deposit_honey_berps, 3, 'Deposit $HONEY on Berps', 0, [0]),
+    claim_bgt_on_berps                  : (claim_bgt_on_berps, 3, 'Claim $BGT on Berps', 0, [0]),
+    delegate_bgt_on_station             : (delegate_bgt_on_station, 3, 'Delegate $BGT on Station', 0, [0]),
+    vote_bgt_on_station                 : (vote_bgt_on_station, 3, 'Vote on Station with $BGT', 0, [0]),
     supply_honey_bend                   : (supply_honey_bend, 3, 'Supply $HONEY on Bend', 0, [0]),
     supply_btc_bend                     : (supply_btc_bend, 3, 'Supply $BTC on Bend', 0, [0]),
     supply_eth_bend                     : (supply_eth_bend, 3, 'Supply $ETH on Bend', 0, [0]),
@@ -29,6 +32,7 @@ AVAILABLE_MODULES_INFO = {
     mint_booga_ticket                   : (mint_booga_ticket, 3, 'Mint OOGA BOOGA Ticket', 0, [0]),
     mint_bera_red                       : (mint_bera_red, 3, 'Mint BERA RED ENVELOPE', 0, [0]),
     claim_galxe_points                  : (claim_galxe_points, 3, 'Claim Galxe Daily Points', 0, [0]),
+    claim_galxe_campaign_points         : (claim_galxe_campaign_points, 3, 'Claim Galxe Campaign Points', 0, [0]),
 }
 
 

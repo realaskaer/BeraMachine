@@ -11,9 +11,9 @@ from utils.networks import BeraChainRPC
 from web3 import AsyncWeb3, AsyncHTTPProvider
 from utils.route_generator import AVAILABLE_MODULES_INFO, get_func_by_name
 from config import ACCOUNT_NAMES, PRIVATE_KEYS, PROXIES, CHAIN_NAME, EMAIL_ADDRESSES, EMAIL_PASSWORDS
-from general_settings import (SLEEP_MODE, SLEEP_TIME, SOFTWARE_MODE, TG_ID, TG_TOKEN, MOBILE_PROXY,
+from general_settings import (SLEEP_MODE, SLEEP_TIME_MODULES, SOFTWARE_MODE, TG_ID, TG_TOKEN, MOBILE_PROXY,
                               MOBILE_PROXY_URL_CHANGER, WALLETS_TO_WORK, TELEGRAM_NOTIFICATIONS,
-                              SAVE_PROGRESS, ACCOUNTS_IN_STREAM, SLEEP_TIME_STREAM, SHUFFLE_WALLETS, BREAK_ROUTE)
+                              SAVE_PROGRESS, ACCOUNTS_IN_STREAM, SLEEP_TIME_ACCOUNTS, SHUFFLE_WALLETS, BREAK_ROUTE)
 
 
 class Runner(Logger):
@@ -62,9 +62,9 @@ class Runner(Logger):
     async def smart_sleep(self, account_name, account_number, accounts_delay=False):
         if SLEEP_MODE:
             if accounts_delay:
-                duration = random.randint(*tuple(x * account_number for x in SLEEP_TIME_STREAM))
+                duration = random.randint(*tuple(x * account_number for x in SLEEP_TIME_ACCOUNTS))
             else:
-                duration = random.randint(*SLEEP_TIME)
+                duration = random.randint(*SLEEP_TIME_MODULES)
             self.logger_msg(account_name, None, f"💤 Sleeping for {duration} seconds\n")
             await asyncio.sleep(duration)
 
@@ -100,17 +100,20 @@ class Runner(Logger):
             json.dump(data, file, indent=4)
 
     async def change_ip_proxy(self):
-        try:
-            self.logger_msg(None, None, f'Trying to change IP address\n', 'info')
+        for index, proxy_url in enumerate(MOBILE_PROXY_URL_CHANGER, 1):
+            while True:
+                try:
+                    self.logger_msg(None, None, f'Trying to change IP №{index} address\n', 'info')
 
-            if not await self.make_request(url=MOBILE_PROXY_URL_CHANGER[0]):
-                await self.make_request(url=MOBILE_PROXY_URL_CHANGER[random.randint(1, 2)])
+                    await self.make_request(url=proxy_url)
 
-            self.logger_msg(None, None, f'IP address changed!\n', 'success')
-            await asyncio.sleep(15)
+                    self.logger_msg(None, None, f'IP №{index} address changed!\n', 'success')
+                    await asyncio.sleep(5)
+                    break
 
-        except Exception as error:
-            self.logger_msg(None, None, f'Bad URL for change IP. Error: {error}', 'error')
+                except Exception as error:
+                    self.logger_msg(None, None, f'Bad URL for change IP №{index}. Error: {error}', 'error')
+                    await asyncio.sleep(15)
 
     async def check_proxies_status(self):
         tasks = []

@@ -24,20 +24,26 @@ class Galxe(Logger, RequestClient):
         self.user_info = None
         self.base_url = 'https://graphigo.prd.galaxy.eco/query'
 
-    # async def report_captcha(self):
-    #     url = 'https://2captcha.com/res.php'
-    #
-    #     params = {
-    #         'key': TWO_CAPTCHA_API_KEY,
-    #         'action': 'reportbad',
-    #         'id': '244bcb8b9846215df5af4c624a750db4',
-    #         'json': 1
-    #     }
-    #
-    #     print(await self.make_request(url=url, params=params))
-    #
-    #     self.logger_msg(
-    #         *self.client.acc_info, msg=f'Successfully requested a refund for bad solution', type_msg='success')
+    async def report_captcha(self, task_id):
+        url = 'https://2captcha.com/res.php'
+
+        params = {
+            'key': TWO_CAPTCHA_API_KEY,
+            'action': 'reportbad',
+            'id': task_id,
+            'json': 1
+        }
+
+        response = await self.make_request(url=url, params=params)
+
+        if response.get('status') == 1:
+            self.logger_msg(
+                *self.client.acc_info, msg=f'Successfully requested a refund for bad solution', type_msg='success')
+        else:
+            self.logger_msg(
+                *self.client.acc_info, msg=f'Can`t request a refund for bad solution. Error: {response}',
+                type_msg='warning'
+            )
 
     async def create_task_for_captcha(self):
         url = 'https://api.2captcha.com/createTask'
@@ -79,6 +85,7 @@ class Galxe(Logger, RequestClient):
             # response = None
             total_time = 0
             timeout = 360
+            response = None
             while True:
                 try:
                     response = await self.make_request(method="POST", url=url, json=payload, headers=headers)
@@ -105,8 +112,9 @@ class Galxe(Logger, RequestClient):
                     self.logger_msg(
                         *self.client.acc_info, msg=f'Bad captcha solve from 2captcha, trying again in 30 second...',
                         type_msg='warning')
-                    # if int(response.get('errorId')) != 12:
-                    #     await self.report_captcha()
+                    if int(response.get('errorId')) != 12:
+                        print(response)
+                        await self.report_captcha(task_id)
                     await asyncio.sleep(30)
                     break
 
@@ -306,16 +314,17 @@ class Galxe(Logger, RequestClient):
                                            module_name='SyncCredentialValue')
 
         if response['data']['syncCredentialValue']['value']['allow']:
+            self.logger_msg(*self.client.acc_info, msg=f"Task is ready to claim points", type_msg='success')
             return True
         return False
 
-    async def claim_points(self):
+    async def claim_points(self, campaign_id):
         payload = {
             "operationName": "PrepareParticipate",
             "variables": {
                 "input": {
                     "address": self.client.address,
-                    "campaignID": "GCTN3ttM4T",
+                    "campaignID": campaign_id,
                     "captcha": await self.get_captcha_data(),
                     "chain": "ETHEREUM",
                     "mintCount": 1,
@@ -395,7 +404,7 @@ class Galxe(Logger, RequestClient):
     #         "captchaOutput": verify_data['captcha_output'],
     #     }
     #
-    async def click_faucet_quest(self):
+    async def click_faucet_quest(self, cred_id):
         url = 'https://graphigo.prd.galaxy.eco/query'
 
         payload = {
@@ -404,7 +413,7 @@ class Galxe(Logger, RequestClient):
                 "input": {
                     "campaignId": "GCTN3ttM4T",
                     "captcha": await self.get_captcha_data(),
-                    "credId": "380124126053949440",
+                    "credId": cred_id,
                     "items": [
                         self.client.address
                     ],
@@ -417,7 +426,45 @@ class Galxe(Logger, RequestClient):
 
         await self.make_request(method="POST", url=url, json=payload)
 
-        self.logger_msg(*self.client.acc_info, msg=f"Successfully click faucet quest on Galxe", type_msg='success')
+        self.logger_msg(*self.client.acc_info, msg=f"Successfully clicked faucet quest on Galxe", type_msg='success')
+
+        while True:
+            if await self.reload_task(cred_id):
+                break
+            await asyncio.sleep(60)
+
+    async def solve_quiz(self):
+        url = 'https://graphigo.prd.galaxy.eco/query'
+
+        payload = {
+            "operationName":"SyncCredentialValue",
+            "variables":{
+                "input":{
+                    "syncOptions":{
+                        "credId":"367883082841890816",
+                        "address":self.client.address,
+                        "quiz":{
+                            "answers":[
+                                "2",
+                                "3",
+                                "3",
+                                "3",
+                                "0"
+                            ]
+                        }
+                    }
+                }
+            },
+            "query":"mutation SyncCredentialValue($input: SyncCredentialValueInput!) {\n  syncCredentialValue(input: $input) {\n    value {\n      address\n      spaceUsers {\n        follow\n        points\n        participations\n        __typename\n      }\n      campaignReferral {\n        count\n        __typename\n      }\n      gitcoinPassport {\n        score\n        lastScoreTimestamp\n        __typename\n      }\n      walletBalance {\n        balance\n        __typename\n      }\n      multiDimension {\n        value\n        __typename\n      }\n      allow\n      survey {\n        answers\n        __typename\n      }\n      quiz {\n        allow\n        correct\n        __typename\n      }\n      __typename\n    }\n    message\n    __typename\n  }\n}\n"
+        }
+
+        response = await self.make_request(method="POST", url=url, json=payload)
+
+        if response['data']['syncCredentialValue']['value']['allow']:
+            self.logger_msg(*self.client.acc_info, msg=f"Successfully solved quiz on Galxe", type_msg='success')
+            return True
+        self.logger_msg(*self.client.acc_info, msg=f"Quiz already complete on Galxe", type_msg='success')
+        return False
 
     async def get_email_code(self):
         from email import message_from_bytes
@@ -476,6 +523,9 @@ class Galxe(Logger, RequestClient):
     @helper
     async def claim_galxe_points_berachain_faucet(self):
 
+        daily_cred_id = "380124126053949440"
+        daily_campaign_id = "GCTN3ttM4T"
+
         self.logger_msg(*self.client.acc_info, msg=f"Check previous registration on Galxe")
 
         user_exist = await self.check_galxe_id_exist()
@@ -509,17 +559,33 @@ class Galxe(Logger, RequestClient):
 
         self.logger_msg(*self.client.acc_info, msg=f"Check access to complete a quest")
 
-        cred_id = await self.get_cred_id()
+        await self.click_faucet_quest(cred_id=daily_cred_id)
 
-        await self.click_faucet_quest()
-
-        while True:
-            if await self.reload_task(cred_id):
-                break
-            await asyncio.sleep(60)
-
-        self.logger_msg(*self.client.acc_info, msg=f"Task is ready to claim points", type_msg='success')
-
-        await self.claim_points()
+        await self.claim_points(campaign_id=daily_campaign_id)
 
         return True
+
+    @helper
+    async def claim_bera_campaign_points(self):
+
+        bera_docs_cred_id = "367877685103992832"
+        pol_cred_id = "368778853896331264"
+        bera_campaign_id = "GC433ttn6N"
+
+        self.logger_msg(*self.client.acc_info, msg=f"Started doing quests")
+
+        self.logger_msg(*self.client.acc_info, msg=f"Trying to click BeraChain docs task")
+
+        await self.click_faucet_quest(cred_id=bera_docs_cred_id)
+
+        self.logger_msg(*self.client.acc_info, msg=f"Trying to click Proof of Liquidity task")
+
+        await self.click_faucet_quest(cred_id=pol_cred_id)
+
+        self.logger_msg(*self.client.acc_info, msg=f"Trying to solve Quiz: Intro to BeraChain")
+
+        await self.solve_quiz()
+
+        self.logger_msg(*self.client.acc_info, msg=f"Checking out the points available on Galxe")
+
+        await self.claim_points(campaign_id=bera_campaign_id)
