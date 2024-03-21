@@ -59,6 +59,7 @@ TG_ID = ""  # https://t.me/getmyid_bot
     swap_honey_bex                  # свап на BEX ($BERA -> $HONEY)
     swap_stgusdc_bex                # свап на BEX ($BERA -> $STGUSDC)
     swap_eth_bex                    # свап на BEX ($BERA -> $ETH)
+    deploy_contract                 # деплой простого контракта на BeraChain на https://minter.merkly.com/deploy/empty
     deposit_honey_berps             # добавление $HONEY ликвидности на Berps           
     supply_honey_bend               # добавление $HONEY ликвидности на Bend           
     supply_btc_bend                 # добавление $BTC ликвидности на Bend      

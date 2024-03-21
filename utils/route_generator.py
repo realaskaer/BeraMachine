@@ -21,6 +21,7 @@ AVAILABLE_MODULES_INFO = {
     claim_bgt_on_berps                  : (claim_bgt_on_berps, 3, 'Claim $BGT on Berps', 0, [0]),
     delegate_bgt_on_station             : (delegate_bgt_on_station, 3, 'Delegate $BGT on Station', 0, [0]),
     vote_bgt_on_station                 : (vote_bgt_on_station, 3, 'Vote on Station with $BGT', 0, [0]),
+    deploy_contract                     : (deploy_contract, 3, 'Deploy contract on BeraChain via Merkly', 0, [0]),
     supply_honey_bend                   : (supply_honey_bend, 3, 'Supply $HONEY on Bend', 0, [0]),
     supply_btc_bend                     : (supply_btc_bend, 3, 'Supply $BTC on Bend', 0, [0]),
     supply_eth_bend                     : (supply_eth_bend, 3, 'Supply $ETH on Bend', 0, [0]),

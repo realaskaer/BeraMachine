@@ -77,6 +77,11 @@ async def vote_bgt_on_station(account_number, private_key, proxy, *_, **kwargs):
     return await worker.vote_bgt_on_station(**kwargs)
 
 
+async def deploy_contract(account_number, private_key, proxy, *_, **kwargs):
+    worker = BeraChain(get_client(account_number, private_key, proxy))
+    return await worker.deploy_contract(**kwargs)
+
+
 async def supply_btc_bend(account_number, private_key, proxy, *_, **kwargs):
     worker = BeraChain(get_client(account_number, private_key, proxy))
     return await worker.supply_btc_bend(**kwargs)

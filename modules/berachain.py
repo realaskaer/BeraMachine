@@ -444,3 +444,22 @@ class BeraChain(Logger, RequestClient):
         ).build_transaction(await self.client.prepare_transaction())
 
         return await self.client.send_transaction(transcation)
+
+    @helper
+    async def deploy_contract(self):
+
+        self.logger_msg(*self.client.acc_info, msg=f'Deploy contract on BeraChain')
+
+        contract_data = ('0x60806040526000805461ffff1916905534801561001b57600080fd5b5060fb8061002a6000396000f3fe60806'
+                         '04052348015600f57600080fd5b506004361060325760003560e01c80630c55699c146037578063b49004e91460'
+                         '5b575b600080fd5b60005460449061ffff1681565b60405161ffff909116815260200160405180910390f35b606'
+                         '16063565b005b60008054600191908190607a90849061ffff166096565b92506101000a81548161ffff02191690'
+                         '8361ffff160217905550565b61ffff81811683821601908082111560be57634e487b7160e01b6000526011600452'
+                         '60246000fd5b509291505056fea2646970667358221220666c87ec501268817295a4ca1fc6e3859faf241f38dd68'
+                         '8f145135970920009264736f6c63430008120033')
+
+        transcation = await self.client.prepare_transaction() | {
+            'data': contract_data
+        }
+
+        return await self.client.send_transaction(transcation)
