@@ -480,7 +480,7 @@ class Galxe(Logger, RequestClient):
 
             if 'rambler' in domain_name:
                 await rambler_client.wait_hello_from_server()
-                
+
             await rambler_client.login(self.client.email_address, self.client.email_password)
 
             try:
@@ -573,6 +573,37 @@ class Galxe(Logger, RequestClient):
         bera_docs_cred_id = "367877685103992832"
         pol_cred_id = "368778853896331264"
         bera_campaign_id = "GC433ttn6N"
+
+        self.logger_msg(*self.client.acc_info, msg=f"Check previous registration on Galxe")
+
+        user_exist = await self.check_galxe_id_exist()
+        await self.sign_in()
+
+        if not user_exist:
+            self.logger_msg(*self.client.acc_info, msg=f"New user on Galxe, make registration")
+            await self.create_new_acc()
+        else:
+            self.logger_msg(*self.client.acc_info, msg=f"Already registered on Galxe", type_msg='success')
+
+        user_info = await self.get_user_info()
+        if not user_info['hasEmail']:
+            self.logger_msg(*self.client.acc_info, msg=f"Email is not linked to the Galxe account. Start linking...")
+            await asyncio.sleep(5)
+            await self.send_email()
+            while True:
+                code = await self.get_email_code()
+                self.logger_msg(
+                    *self.client.acc_info, msg=f"Successfully found a message from Galxe", type_msg='success')
+                if await self.confirm_email(code):
+                    break
+
+                self.logger_msg(
+                    *self.client.acc_info, msg=f"This code was wrong, will try again in 60 seconds...",
+                    type_msg='warning')
+
+                await asyncio.sleep(60)
+
+            self.logger_msg(*self.client.acc_info, msg=f"Successfully linked mail to Galxe", type_msg='success')
 
         self.logger_msg(*self.client.acc_info, msg=f"Started doing quests")
 
