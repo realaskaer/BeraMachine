@@ -48,7 +48,7 @@ class Custom(Logger, RequestClient):
 
         from_token_name = 'BERA'
         to_token_name = 'HONEY'
-        amount = round(random.uniform(0.001, 0.002), 4)
+        amount = round(random.uniform(0.05, 0.06), 4)
         amount_in_wei = int(amount * 10 ** 18)
 
         data = from_token_name, to_token_name, amount, amount_in_wei
