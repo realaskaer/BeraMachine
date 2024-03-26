@@ -404,7 +404,7 @@ class Galxe(Logger, RequestClient):
     #         "captchaOutput": verify_data['captcha_output'],
     #     }
     #
-    async def click_faucet_quest(self, cred_id, no_wait:bool = False):
+    async def click_faucet_quest(self, cred_id):
         url = 'https://graphigo.prd.galaxy.eco/query'
 
         payload = {
@@ -428,13 +428,10 @@ class Galxe(Logger, RequestClient):
 
         self.logger_msg(*self.client.acc_info, msg=f"Successfully clicked faucet quest on Galxe", type_msg='success')
 
-        if no_wait:
-            return await self.reload_task(cred_id)
-        else:
-            while True:
-                if await self.reload_task(cred_id):
-                    break
-                await asyncio.sleep(60)
+        while True:
+            if await self.reload_task(cred_id):
+                break
+            await asyncio.sleep(60)
 
     async def solve_quiz(self):
         url = 'https://graphigo.prd.galaxy.eco/query'
@@ -619,19 +616,19 @@ class Galxe(Logger, RequestClient):
 
         self.logger_msg(*self.client.acc_info, msg=f"Trying to click Proof of Liquidity task")
 
-        await self.click_faucet_quest(cred_id=pol_cred_id)
+        await self.reload_task(cred_id=pol_cred_id)
         
         self.logger_msg(*self.client.acc_info, msg=f"Trying to click Drip $BERA task")
 
-        await self.click_faucet_quest(cred_id=drip_cred_id, no_wait=True)        
+        await self.reload_task(cred_id=drip_cred_id)
         
         self.logger_msg(*self.client.acc_info, msg=f"Trying to click Swap on BEX task")
 
-        await self.click_faucet_quest(cred_id=bex_swap_cred_id, no_wait=True)
+        await self.reload_task(cred_id=bex_swap_cred_id)
         
         self.logger_msg(*self.client.acc_info, msg=f"Trying to click Mint Honey task")
 
-        await self.click_faucet_quest(cred_id=mint_honey_cred_id, no_wait=True)
+        await self.click_faucet_quest(cred_id=mint_honey_cred_id)
 
         self.logger_msg(*self.client.acc_info, msg=f"Trying to solve Quiz: Intro to BeraChain")
 
