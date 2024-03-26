@@ -113,7 +113,6 @@ class Galxe(Logger, RequestClient):
                         *self.client.acc_info, msg=f'Bad captcha solve from 2captcha, trying again in 30 second...',
                         type_msg='warning')
                     if int(response.get('errorId')) != 12:
-                        print(response)
                         await self.report_captcha(task_id)
                     await asyncio.sleep(30)
                     break
