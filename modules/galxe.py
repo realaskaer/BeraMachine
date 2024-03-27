@@ -295,27 +295,29 @@ class Galxe(Logger, RequestClient):
             return True
 
     async def reload_task(self, cred_id):
-
-        payload = {
-            "operationName": "SyncCredentialValue",
-            "variables": {
-                "input": {
-                    "syncOptions": {
-                        "address": self.client.address,
-                        "credId": f"{cred_id}",
+        try:
+            payload = {
+                "operationName": "SyncCredentialValue",
+                "variables": {
+                    "input": {
+                        "syncOptions": {
+                            "address": self.client.address,
+                            "credId": f"{cred_id}",
+                        }
                     }
-                }
-            },
-            "query": "mutation SyncCredentialValue($input: SyncCredentialValueInput!) {\n  syncCredentialValue(input: $input) {\n    value {\n      address\n      spaceUsers {\n        follow\n        points\n        participations\n        __typename\n      }\n      campaignReferral {\n        count\n        __typename\n      }\n      gitcoinPassport {\n        score\n        lastScoreTimestamp\n        __typename\n      }\n      walletBalance {\n        balance\n        __typename\n      }\n      multiDimension {\n        value\n        __typename\n      }\n      allow\n      survey {\n        answers\n        __typename\n      }\n      quiz {\n        allow\n        correct\n        __typename\n      }\n      __typename\n    }\n    message\n    __typename\n  }\n}\n"
-        }
+                },
+                "query": "mutation SyncCredentialValue($input: SyncCredentialValueInput!) {\n  syncCredentialValue(input: $input) {\n    value {\n      address\n      spaceUsers {\n        follow\n        points\n        participations\n        __typename\n      }\n      campaignReferral {\n        count\n        __typename\n      }\n      gitcoinPassport {\n        score\n        lastScoreTimestamp\n        __typename\n      }\n      walletBalance {\n        balance\n        __typename\n      }\n      multiDimension {\n        value\n        __typename\n      }\n      allow\n      survey {\n        answers\n        __typename\n      }\n      quiz {\n        allow\n        correct\n        __typename\n      }\n      __typename\n    }\n    message\n    __typename\n  }\n}\n"
+            }
 
-        response = await self.make_request(method="POST", url=self.base_url, json=payload,
-                                           module_name='SyncCredentialValue')
+            response = await self.make_request(method="POST", url=self.base_url, json=payload,
+                                               module_name='SyncCredentialValue')
 
-        if response['data']['syncCredentialValue']['value']['allow']:
-            self.logger_msg(*self.client.acc_info, msg=f"Task is ready to claim points", type_msg='success')
-            return True
-        return False
+            if response['data']['syncCredentialValue']['value']['allow']:
+                self.logger_msg(*self.client.acc_info, msg=f"Task is ready to claim points", type_msg='success')
+                return True
+            return False
+        except:
+            return False
 
     async def claim_points(self, campaign_id):
         payload = {
