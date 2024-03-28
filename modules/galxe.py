@@ -638,3 +638,5 @@ class Galxe(Logger, RequestClient):
         self.logger_msg(*self.client.acc_info, msg=f"Checking out the points available on Galxe")
 
         await self.claim_points(campaign_id=bera_campaign_id)
+
+        return True
