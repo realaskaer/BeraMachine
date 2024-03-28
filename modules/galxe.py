@@ -617,7 +617,7 @@ class Galxe(Logger, RequestClient):
 
         self.logger_msg(*self.client.acc_info, msg=f"Trying to click Proof of Liquidity task")
 
-        await self.reload_task(cred_id=pol_cred_id)
+        await self.click_faucet_quest(cred_id=pol_cred_id)
         
         self.logger_msg(*self.client.acc_info, msg=f"Trying to click Drip $BERA task")
 
@@ -629,7 +629,7 @@ class Galxe(Logger, RequestClient):
         
         self.logger_msg(*self.client.acc_info, msg=f"Trying to click Mint Honey task")
 
-        await self.click_faucet_quest(cred_id=mint_honey_cred_id)
+        await self.reload_task(cred_id=mint_honey_cred_id)
 
         self.logger_msg(*self.client.acc_info, msg=f"Trying to solve Quiz: Intro to BeraChain")
 
