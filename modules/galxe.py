@@ -476,52 +476,59 @@ class Galxe(Logger, RequestClient):
         total_time = 0
         timeout = 600
         domain_name = self.client.email_address.split('@')[-1]
+        start_flag = False
         while True:
-            rambler_client = aioimaplib.IMAP4_SSL(IMAP_CONFIG.get(domain_name, f'imap.{domain_name}'))
-
-            if 'rambler' in domain_name:
-                await rambler_client.wait_hello_from_server()
-
-            await rambler_client.login(self.client.email_address, self.client.email_password)
-
             try:
-                res, data = await rambler_client.select()
-                try:
-                    last_message_number = data[2].decode().split()[0]
-                except:
-                    last_message_number = data[0].decode().split()[0]
+                rambler_client = aioimaplib.IMAP4_SSL(IMAP_CONFIG.get(domain_name, f'imap.{domain_name}'))
 
-                message = await rambler_client.fetch(f"{last_message_number}", '(RFC822)')
+                if 'rambler' in domain_name or start_flag:
+                    await rambler_client.wait_hello_from_server()
+
+                await rambler_client.login(self.client.email_address, self.client.email_password)
+
                 try:
-                    message_content = message[1][1]
-                except:
+                    res, data = await rambler_client.select()
                     try:
-                        message_content = message[1][0]
+                        last_message_number = data[2].decode().split()[0]
                     except:
-                        message_content = message[1]
+                        last_message_number = data[0].decode().split()[0]
 
-                message = message_from_bytes(message_content)
+                    message = await rambler_client.fetch(f"{last_message_number}", '(RFC822)')
+                    try:
+                        message_content = message[1][1]
+                    except:
+                        try:
+                            message_content = message[1][0]
+                        except:
+                            message_content = message[1]
 
-                soup = BeautifulSoup(message.as_string(), 'html.parser')
+                    message = message_from_bytes(message_content)
 
-                try:
-                    return soup.find('h1').text
-                except:
-                    total_time += 30
-                    await asyncio.sleep(30)
+                    soup = BeautifulSoup(message.as_string(), 'html.parser')
+
+                    try:
+                        return soup.find('h1').text
+                    except:
+                        total_time += 30
+                        await asyncio.sleep(30)
+                        if total_time > timeout:
+                            break
+                        continue
+                except Exception as error:
+                    traceback.print_exc()
+                    self.logger_msg(
+                        *self.client.acc_info, msg=f"Error in <get_email_code> function: {error}", type_msg='warning')
+                    total_time += 60
+                    await asyncio.sleep(10)
                     if total_time > timeout:
-                        break
+                        traceback.print_exc()
+                        raise SoftwareExceptionWithoutRetry('Can`t get confirmation code from email!')
                     continue
             except Exception as error:
-                traceback.print_exc()
-                self.logger_msg(
-                    *self.client.acc_info, msg=f"Error in <get_email_code> function: {error}", type_msg='warning')
-                total_time += 60
-                await asyncio.sleep(10)
-                if total_time > timeout:
-                    traceback.print_exc()
-                    raise SoftwareExceptionWithoutRetry('Can`t get confirmation code from email!')
-                continue
+                if 'command LOGIN illegal' in str(error):
+                    start_flag = True
+                else:
+                    raise error
 
     @helper
     async def claim_galxe_points_berachain_faucet(self):
