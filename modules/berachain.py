@@ -231,8 +231,7 @@ class BeraChain(Logger, RequestClient):
 
     @helper
     async def supply_honey_bend(self):
-        amount = round(random.uniform(0.01, 0.05), 4)
-        amount_in_wei = int(amount * 10 ** 18)
+        amount_in_wei, amount, _ = await self.client.get_token_balance('HONEY')
 
         self.logger_msg(*self.client.acc_info, msg=f'Supply {amount} $HONEY on Bend Dashboard')
 
