@@ -16,8 +16,10 @@ class Custom(Logger, RequestClient):
 
         from_token_name = 'BERA'
         to_token_name = 'STGUSDC'
-        amount = round(random.uniform(0.001, 0.003), 4)
-        amount_in_wei = int(amount * 10 ** 18)
+        amount_in_wei, amount, _ = await self.client.get_token_balance('BERA')
+
+        amount = round(amount * 0.3, 6)
+        amount_in_wei = int(amount_in_wei * 0.3)
 
         data = from_token_name, to_token_name, amount, amount_in_wei
 

@@ -20,7 +20,7 @@ BREAK_ROUTE = False             # Прекращает выполнение ма
 SHUFFLE_WALLETS = False         # Перемешивает кошельки перед запуском
 SAVE_PROGRESS = False           # Включает сохранение прогресса аккаунта для Classic-routes
 TELEGRAM_NOTIFICATIONS = False  # Включает уведомления в Telegram
-WAIT_FAUCET = False             # Ожидает получение $BERA из Faucet
+WAIT_FAUCET = True              # Ожидает получение $BERA из Faucet
 
 '------------------------------------------------SLEEP CONTROL---------------------------------------------------------'
 SLEEP_MODE = False               # Включает сон после каждого модуля и аккаунта
@@ -70,6 +70,8 @@ TG_ID = ""  # https://t.me/getmyid_bot
     withdraw_eth_bend               # вывод $ETH ликвидности на Bend           
     add_liqiudity_bex_honey_mim     # добавление $HONEY/MIM ликвидности на BEX 
     add_liqiudity_bex_bera_usdc     # добавление $BERA/USDC ликвидности на BEX
+    claim_musdc                     # клейм mUSDC на сайте https://bera.dirac.finance/vaults
+    mint_boba                       # минт NFT $BOBA
     mint_honey                      # минт $HONEY за $STGUSDC
     mint_domain                     # минт домена на https://www.beranames.com/
     mint_booga_ticket               # минт OOGA BOOGA Ticket за 4.2 $HONEY
@@ -97,13 +99,15 @@ CLASSIC_ROUTES_MODULES_USING = [
     ['mint_berachain_tokens'],
     ['swap_stgusdc_bex'],
     ['swap_eth_bex', 'swap_btc_bex'],
-    ['add_liqiudity_bex_bera_usdc'],
+    ['add_liqiudity_bex_bera_usdc', 'add_liqiudity_bex_honey_mim'],
+    ['mint_boba'],
     ['mint_honey'],
-    ['mint_booga_ticket', None],
+    ['mint_domain'],
+    ['deploy_contract'],
+    ['mint_booga_ticket', 'mint_bera_red', None],
     ['supply_honey_bend', 'supply_btc_bend', 'supply_eth_bend'],
-    ['claim_galxe_points'],
     ['claim_bgt_on_berps'],
     ['delegate_bgt_on_station'],
     ['vote_bgt_on_station'],
-    ['claim_galxe_campaign_points'],
+    ['deposit_honey_berps'],
 ]

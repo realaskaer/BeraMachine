@@ -122,6 +122,16 @@ async def mint_bera_red(account_number, private_key, proxy, *_, **kwargs):
     return await worker.mint_bera_red(**kwargs)
 
 
+async def claim_musdc(account_number, private_key, proxy, *_, **kwargs):
+    worker = BeraChain(get_client(account_number, private_key, proxy))
+    return await worker.claim_musdc()
+
+
+async def mint_boba(account_number, private_key, proxy, *_, **kwargs):
+    worker = BeraChain(get_client(account_number, private_key, proxy))
+    return await worker.mint_boba(**kwargs)
+
+
 async def mint_valhala_nft(account_number, private_key, proxy, *_, **kwargs):
     worker = BeraChain(get_client(account_number, private_key, proxy))
     return await worker.mint_valhala_nft(**kwargs)
