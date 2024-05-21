@@ -20,7 +20,6 @@ BREAK_ROUTE = False             # Прекращает выполнение ма
 SHUFFLE_WALLETS = False         # Перемешивает кошельки перед запуском
 SAVE_PROGRESS = False           # Включает сохранение прогресса аккаунта для Classic-routes
 TELEGRAM_NOTIFICATIONS = False  # Включает уведомления в Telegram
-WAIT_FAUCET = True              # Ожидает получение $BERA из Faucet
 
 '------------------------------------------------SLEEP CONTROL---------------------------------------------------------'
 SLEEP_MODE = False               # Включает сон после каждого модуля и аккаунта

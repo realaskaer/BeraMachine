@@ -1,11 +1,9 @@
 import asyncio
 
-from web3.exceptions import TransactionNotFound
-
-from general_settings import TWO_CAPTCHA_API_KEY, WAIT_FAUCET
+from general_settings import TWO_CAPTCHA_API_KEY
 from modules import Logger, RequestClient, Client
 from modules.interfaces import SoftwareException
-from utils.tools import helper
+from utils.tools import helper, sleep
 
 
 class Faucet(Logger, RequestClient):
@@ -78,60 +76,35 @@ class Faucet(Logger, RequestClient):
         captcha_key = await self.get_captcha_key(task_id)
 
         headers = {
-            "authority": "artio-80085-faucet-api-recaptcha.berachain.com",
-            "method": "POST",
-            "path": f"/api/claim?address={self.client.address}",
-            "scheme": "https",
             "accept": "*/*",
-            "accept-Encoding": "gzip, deflate, br",
-            "accept-Language": "ru,en;q=0.9,en-GB;q=0.8,en-US;q=0.7",
+            "accept-language": "ru,en;q=0.9,en-GB;q=0.8,en-US;q=0.7",
             "authorization": f"Bearer {captcha_key}",
-            "content-type": "application/json",
-            "origin": "https://artio.faucet.berachain.com",
-            "referer": "https://artio.faucet.berachain.com/",
-            "sec-ch-ua": '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
-            "sec-ch-ua-Mobile": "?0",
-            "sec-ch-ua-Platform": "Windows",
+            "content-type": "text/plain;charset=UTF-8",
+            "priority": "u=1, i",
+            "sec-ch-ua": "\"Microsoft Edge\";v=\"123\", \"Chromium\";v=\"123\", \"Not.A/Brand\";v=\"23\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
             "sec-fetch-dest": "empty",
             "sec-fetch-mode": "cors",
             "sec-fetch-site": "same-site",
+            "referrer": "https://artio.faucet.berachain.com/",
+            "referrerPolicy": "strict-origin-when-cross-origin",
+            "body": f"{{\"address\":\"{self.client.address}\"}}",
+            "method": "POST",
+            "mode": "cors",
+            "credentials": "include"
         }
 
         params = {
             "address": f"{self.client.address}"
         }
 
-        response = (await self.make_request(method="POST", url=url, params=params, json=params, headers=headers))['msg']
-
+        await self.make_request(method="POST", url=url, params=params, json=params, headers=headers)
         self.logger_msg(*self.client.acc_info, msg=f'$BERA was successfully claimed on faucet', type_msg='success')
+        self.logger_msg(
+            *self.client.acc_info, msg=f'You’ll receive BERA in your wallet in about 2 minutes', type_msg='warning'
+        )
 
-        if WAIT_FAUCET:
-            self.logger_msg(*self.client.acc_info, msg=f'Waiting to receive $BERA from faucet')
+        await sleep(self, 150, 200)
 
-            tx_hash = response.split()[-1]
-
-            poll_latency = 60
-            while True:
-                try:
-                    receipts = await self.client.w3.eth.get_transaction_receipt(tx_hash)
-
-                    status = receipts.get("status")
-                    if status == 1:
-                        message = f'Transaction was successful: {self.client.explorer}tx/{tx_hash}'
-                        self.logger_msg(*self.client.acc_info, msg=message, type_msg='success')
-                        return True
-                    elif status is None:
-                        self.logger_msg(
-                            *self.client.acc_info, msg=f'Still waiting $BERA from faucet', type_msg='warning')
-                        await asyncio.sleep(poll_latency)
-                    else:
-                        raise SoftwareException(f'Transaction failed: {self.client.explorer}tx/{tx_hash}')
-                except TransactionNotFound:
-                    self.logger_msg(*self.client.acc_info, msg=f'Still waiting $BERA from faucet', type_msg='warning')
-                    await asyncio.sleep(poll_latency)
-                except Exception as error:
-                    self.logger_msg(
-                        *self.client.acc_info, msg=f'RPC got autims response. Error: {error}', type_msg='warning')
-                    await asyncio.sleep(poll_latency)
-        else:
-            return True
+        return True
